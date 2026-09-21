@@ -1,0 +1,8 @@
+__pycache__/
+.DS_Store
+specs/package/
+output/*
+!output/.gitkeep
+# Je eigen testdata hoort nooit in een gedeelde repository
+mijn-data/*
+!mijn-data/.gitkeep
