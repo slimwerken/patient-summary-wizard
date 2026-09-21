@@ -28,8 +28,10 @@ Python-script dat de gebruiker daarna zelf kan draaien en aanpassen.
    onderbouwen, komt er niet in. Meld hem als open punt.
 5. **Geen AI in het resultaat.** Het script is gewoon Python (alleen de standaardbibliotheek
    waar het kan): zelfde invoer, zelfde uitvoer. Dat maakt het controleerbaar.
-6. **De keuring beslist.** Eigen tests zijn goed, maar het oordeel van de officiele
-   validator (`tools/valideer.py`) telt.
+6. **De keuring beslist over de vorm, een mens over de inhoud.** Eigen tests zijn goed,
+   maar over de vorm telt het oordeel van de officiele validator (`tools/valideer.py`).
+   De validator ziet niet of een code de juiste betekenis heeft. Dat controleert de
+   gebruiker in de mapping. Zeg dat erbij als je "goedgekeurd" meldt.
 
 ## Het voorbeeld
 
@@ -44,11 +46,12 @@ Het werk van de gebruiker komt in `mijn-koppeling/`. De uitvoer in `output/`.
 
 ## Stap 0. Klaarzetten (zonder vragen)
 
-1. Controleer: Python 3.9 of nieuwer (`python3 --version`).
-2. Controleer de keuring: Java 17+ en `~/.fhir-validator/validator_cli.jar`.
-   Ontbreekt iets, installeer het zelf als dat kan (macOS: `brew install openjdk`; de jar:
-   `curl -L -o ~/.fhir-validator/validator_cli.jar https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar`).
-   Lukt installeren niet, zeg dat kort en ga door: de keuring kan later.
+1. Draai `python3 tools/valideer.py --controleer`. Dat controleert Python en Java, haalt
+   de validator op als hij ontbreekt en doet een proefkeuring (de eerste keer 1 tot 2
+   minuten, internet nodig). Gebruik NIET `java -version` als controle: op macOS bestaat
+   een nep-`java` die faalt terwijl de keuring gewoon werkt.
+2. Meldt hij dat Java ontbreekt: installeer het als dat kan (macOS: `brew install openjdk`)
+   en draai de controle opnieuw. Lukt het niet, zeg dat kort en ga door: de keuring kan later.
 3. Vertel de gebruiker in drie zinnen wat er gaat gebeuren: we lezen je testdata, we maken
    samen de mapping naar de Patient Summary, en jij krijgt een script dat de omzetting doet.
 
@@ -78,18 +81,24 @@ Vraag: "Klopt dit beeld?" Pas aan op wat de gebruiker zegt.
 2. Schrijf `mijn-koppeling/mapping.md`: per veld uit de data het FHIR-pad en de regel voor
    de omzetting, en onderaan "Open vragen" voor alles wat je niet zeker weet.
 3. Laat de mapping zien als tabel en vraag: "Klopt dit met hoe jullie systeem werkt?"
-   Loop de open vragen een voor een langs. Weet de gebruiker het niet, laat hem staan
-   voor iemand van Nictiz.
+4. Leg de open vragen GEBUNDELD voor: maximaal vier per keer, en bij elke vraag de optie
+   "Laat staan voor Nictiz". Niet een voor een; de gebruiker weet de meeste niet.
 
-Let op: de vijf verplichte secties zijn Problemen, Allergieen, Medicatie, Verrichtingen
-en Hulpmiddelen. Heeft de data ergens niets voor, dan komt de sectie er toch in, met een
-`emptyReason`.
+Let op bij de mapping:
+- De vijf verplichte secties zijn Problemen, Allergieen, Medicatie, Verrichtingen en
+  Hulpmiddelen. Heeft de data ergens niets voor, dan komt de sectie er toch in, met een
+  `emptyReason`. Gebruik `unavailable` (niet vastgelegd in het dossier). `nilknown`
+  betekent dat een arts heeft vastgesteld dat er niets is; dat weet een systeem niet.
+- De Patient Summary werkt het liefst met SNOMED CT. Heeft het systeem andere codes
+  (ICPC, ICD-10, ATC), neem die over en zet een vertaling naar SNOMED alleen erbij als
+  die onderbouwd is. De rest wordt een open vraag.
 
 ## Stap 4. Het script bouwen
 
 Schrijf `mijn-koppeling/converter.py` volgens de mapping. Codevertalingen in een aparte
 tabel (`mijn-koppeling/vertaling.py`). Vaste id's, zodat dezelfde invoer altijd dezelfde
-uitvoer geeft. Uitvoer: `output/patient-<nummer>.json`.
+uitvoer geeft. Het documenttijdstip is standaard "nu"; geef een optie `--datum` zodat een
+run exact te herhalen is (ook voor de tests). Uitvoer: `output/patient-<nummer>.json`.
 
 Schrijf tests in `mijn-koppeling/tests/` en draai ze. Vertel hoeveel er groen zijn.
 
@@ -100,7 +109,9 @@ Schrijf tests in `mijn-koppeling/tests/` en draai ze. Vertel hoeveel er groen zi
 2. Per fout: zoek de regel in de spec, pas EERST de mapping aan, dan de code, en voeg een
    test toe die de fout had moeten vangen.
 3. Herhaal, maximaal vijf rondes. Vertel na elke ronde kort: van hoeveel fouten naar hoeveel.
-4. Aan het eind: welke waarschuwingen blijven over en waarom. Een deel komt uit de spec
+4. Ook als de eerste ronde al 0 fouten geeft: loop de adviezen over codelijsten na
+   (zichtbaar met `--alles`). Die zeggen welke codes de spec liever ziet.
+5. Aan het eind: welke waarschuwingen blijven over en waarom. Een deel komt uit de spec
    zelf (Europese codelijsten die niet te laden zijn, Nederlandse codelijsten die de
    internationale validator niet kent). Fouten moeten weg; waarschuwingen moet je kunnen uitleggen.
 

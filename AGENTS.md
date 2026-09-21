@@ -7,7 +7,7 @@ HL7 Europe Patient Summary (FHIR R4).
 
 De harde regels staan in `WIZARD.md`. In het kort: alleen testdata, alles blijft op deze
 computer, eerst de mapping en dan de code, nooit een code raden, geen AI in het
-eindresultaat, en de officiele validator (`tools/valideer.py`) beslist.
+eindresultaat, en de officiele validator (`tools/valideer.py`) beslist over de vorm; of de inhoud klopt, controleert de gebruiker in de mapping.
 
 - Werk van de gebruiker: `mijn-koppeling/`. Uitvoer: `output/`.
 - Patroon om van te leren: `voorbeeld/` (goedgekeurde koppeling voor `data/epd.sqlite`).

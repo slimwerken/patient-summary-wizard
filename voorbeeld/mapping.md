@@ -16,7 +16,7 @@ De code is daarna alleen nog de uitvoering ervan.
 | Documentnummer | `Composition.identifier` | vaste UUID per patient en tijdstip (verplicht in EPS) |
 | Opgesteld door | `Composition.author` | de huisarts van de patient (`patienten.arts_id`) |
 | Beheerder | `Composition.custodian` | de praktijk (`praktijk`) |
-| Verplichte secties | `Composition.section` | Problemen, Allergieen, Medicatie, Verrichtingen, Hulpmiddelen. Leeg = `emptyReason` nilknown |
+| Verplichte secties | `Composition.section` | Problemen, Allergieen, Medicatie, Verrichtingen, Hulpmiddelen. Leeg = `emptyReason` unavailable (niet vastgelegd in het dossier) |
 
 ## Patient (`patienten`)
 
@@ -79,6 +79,6 @@ De code is daarna alleen nog de uitvoering ervan.
 ## Open vragen voor een inhoudsdeskundige
 
 1. ICPC L03 (lage rugklachten) heeft nog geen vastgestelde SNOMED-vertaling. Welke?
-2. Een lege sectie krijgt nu `nilknown` (niets bekend). Moet dat `unavailable` zijn als het EPD het simpelweg niet vastlegt?
+2. Een lege sectie krijgt nu `unavailable` (niet vastgelegd in het dossier). Mag het `nilknown` zijn als de huisarts bewust "niets bekend" heeft vastgelegd?
 3. EPD-ernst "matig" gaat nu naar criticality `low`. Klopt dat, of hoort daar `unable-to-assess`?
 4. De validator kent de Nederlandse ICPC-codelijst niet en geeft daar een waarschuwing op. Is een SNOMED-vertaling ernaast genoeg?

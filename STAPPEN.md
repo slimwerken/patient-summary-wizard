@@ -3,6 +3,9 @@
 Je werkt in VS Code met Claude Code. Je typt gewone zinnen, Claude doet het werk,
 jij controleert. Kopieer de opdrachten gerust letterlijk.
 
+**Vooraf, thuis:** typ `python3 tools/valideer.py --controleer`. Dat zet de keuring klaar
+en haalt de benodigde bestanden op, zodat het op de dag zelf niet op de wifi wacht.
+
 **Met je eigen systeem?** Vervang `data/epd.sqlite` in de opdrachten door hoe je bij je
 eigen testomgeving komt (een testdatabase, een export met testdata, een API). Alleen
 testdata, nooit productie. Lukt dat vandaag niet, oefen dan eerst op `data/epd.sqlite`:
@@ -43,8 +46,9 @@ open vragen na bij iemand die de spec kent. Dit is het moment waarop jouw vakken
 > tot er geen fouten meer zijn en vertel welke waarschuwingen er overblijven en waarom.
 
 Schrik niet van de waarschuwingen. Een deel komt uit de spec zelf (Europese codelijsten
-die de keuring niet kan ophalen, en de Nederlandse ICPC-codes die hij niet kent).
-Fouten moeten weg, waarschuwingen moet je kunnen uitleggen.
+die de keuring niet kan ophalen, en Nederlandse codelijsten zoals ICPC die hij niet kent).
+Fouten moeten weg, waarschuwingen moet je kunnen uitleggen. En let op: de keuring kijkt
+naar de vorm. Of de inhoud klopt, controleer jij in de mapping.
 
 ### 6. Vastleggen als skill
 

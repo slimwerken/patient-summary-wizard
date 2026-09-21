@@ -21,6 +21,12 @@ Gemaakt voor de AI mini-plugathon van Nictiz op 23 september 2026.
 De assistent moet opdrachten op je eigen laptop kunnen uitvoeren. Een gewoon chatvenster
 in de browser is daarom niet genoeg.
 
+## Vooraf, thuis (5 minuten)
+
+Open de map en typ in de terminal: `python3 tools/valideer.py --controleer`. Dat zet de
+keuring klaar en haalt de benodigde bestanden op (ongeveer 200 MB), zodat het op de dag zelf
+niet op de wifi hoeft te wachten. Of vraag je assistent: *Zet de keuring klaar.*
+
 ## Wat je nodig hebt
 
 - Python 3.9 of nieuwer

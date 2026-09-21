@@ -1,10 +1,17 @@
 {
   "permissions": {
+    "defaultMode": "acceptEdits",
     "allow": [
       "Bash(python3:*)",
       "Bash(sqlite3:*)",
       "Bash(tar:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(date:*)",
+      "Bash(head:*)",
+      "Bash(cat:*)",
+      "Bash(wc:*)",
+      "Bash(brew install openjdk)"
     ]
   }
 }

@@ -72,7 +72,7 @@ class TestBundelVorm(unittest.TestCase):
         bundel, _ = bundel_voor(1005)
         for code, sectie in secties(bundel).items():
             self.assertNotIn("entry", sectie)
-            self.assertEqual(sectie["emptyReason"]["coding"][0]["code"], "nilknown")
+            self.assertEqual(sectie["emptyReason"]["coding"][0]["code"], "unavailable")
 
     def test_alle_verwijzingen_bestaan_in_de_bundel(self):
         for pat_id in (1001, 1004):

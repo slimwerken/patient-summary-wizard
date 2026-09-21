@@ -336,10 +336,12 @@ def sectie(sleutel: str, resources: list, tabel: dict) -> dict:
         s["text"] = verhaal(tabel["kolommen"], tabel["rijen"])
         s["entry"] = [{"reference": url(r["id"])} for r in resources]
     else:
-        # Niets vastgelegd in het EPD: zeg dat expliciet, laat de sectie niet weg
-        s["text"] = leeg_verhaal("Geen gegevens bekend in het dossier.")
+        # Niets vastgelegd in het EPD: zeg dat expliciet, laat de sectie niet weg.
+        # 'unavailable' = niet beschikbaar in het dossier. 'nilknown' zou betekenen dat
+        # een arts heeft vastgesteld dat er niets is; dat weet een systeem niet.
+        s["text"] = leeg_verhaal("Geen gegevens vastgelegd in het dossier.")
         s["emptyReason"] = {"coding": [codering(
-            "http://terminology.hl7.org/CodeSystem/list-empty-reason", "nilknown", "Nil Known")]}
+            "http://terminology.hl7.org/CodeSystem/list-empty-reason", "unavailable", "Unavailable")]}
     return s
 
 
