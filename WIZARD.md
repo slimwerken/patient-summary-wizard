@@ -21,7 +21,9 @@ Python-script dat de gebruiker daarna zelf kan draaien en aanpassen.
 
 1. **Alleen testdata.** Nooit echte patientgegevens. Vraag dit expliciet na in stap 1.
 2. **Alles blijft op deze computer.** Stuur geen data naar een externe dienst, behalve een
-   validatie-tool die de gebruiker zelf heeft ingesteld.
+   validatie-tool die de gebruiker zelf heeft ingesteld. Losse CODES opzoeken bij de
+   terminologieserver (tx.fhir.org, die gebruikt de keuring ook) mag wel: daar gaat
+   nooit patientinformatie heen, alleen de code.
 3. **Eerst de mapping, dan de code.** De mapping is de tabel "welk veld gaat waarheen".
    Die laat je de gebruiker controleren voordat je code schrijft.
 4. **Nooit een code raden.** Een SNOMED-, LOINC- of andere code die je niet kunt
@@ -59,6 +61,9 @@ Het werk van de gebruiker komt in `mijn-koppeling/`. De uitvoer in `output/`.
 
 Vraag (keuzes):
 - **Een exportbestand** (CSV, Excel, JSON of XML). Vraag het bestand in `mijn-data/` te zetten.
+  Excel inlezen gaat met openpyxl: installeer het zelf als het ontbreekt
+  (`python3 -m pip install openpyxl`). Excel-formules: lees de opgeslagen uitkomst
+  (`data_only=True`).
 - **Een testdatabase** (vraag welk type en hoe je erbij komt; alleen-lezen is genoeg).
 - **Een API van de testomgeving** (vraag de documentatie of een voorbeeldantwoord).
 - **Nog niets, ik oefen eerst** (gebruik `data/epd.sqlite`).
@@ -87,8 +92,15 @@ Vraag: "Klopt dit beeld?" Pas aan op wat de gebruiker zegt.
 Let op bij de mapping:
 - De vijf verplichte secties zijn Problemen, Allergieen, Medicatie, Verrichtingen en
   Hulpmiddelen. Heeft de data ergens niets voor, dan komt de sectie er toch in, met een
-  `emptyReason`. Gebruik `unavailable` (niet vastgelegd in het dossier). `nilknown`
-  betekent dat een arts heeft vastgesteld dat er niets is; dat weet een systeem niet.
+  `emptyReason`. Legt de export zelf een reden vast, neem die over. Staat er niets,
+  gebruik dan `unavailable` (niet vastgelegd in het dossier); `nilknown` betekent dat een
+  arts heeft vastgesteld dat er niets is, en dat weet een systeem zelf niet.
+- Heeft de export geen tabel voor een verplicht onderdeel (bijvoorbeeld medicatie of
+  verrichtingen), dan komt dat onderdeel er toch in, leeg, met een `emptyReason`.
+- Extra gegevens zoals metingen en labuitslagen: vraag of ze mee moeten. Ze horen in de
+  optionele secties voor vitale functies (LOINC 8716-3) en uitslagen (LOINC 30954-2).
+- Datum-tijden zonder tijdzone: lees ze als Nederlandse tijd (Europe/Amsterdam) en zet die
+  keuze in de mapping.
 - De Patient Summary werkt het liefst met SNOMED CT. Heeft het systeem andere codes
   (ICPC, ICD-10, ATC), neem die over en zet een vertaling naar SNOMED alleen erbij als
   die onderbouwd is. De rest wordt een open vraag.
@@ -104,7 +116,8 @@ Schrijf tests in `mijn-koppeling/tests/` en draai ze. Vertel hoeveel er groen zi
 
 ## Stap 5. Keuren en verbeteren
 
-1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden).
+1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden). Onderaan staat
+   een samenvatting per soort melding; begin daar, niet bij de losse regels.
    Is er een validatie-tool via MCP ingesteld (bijvoorbeeld van Interoplab), gebruik die ook.
 2. Per fout: zoek de regel in de spec, pas EERST de mapping aan, dan de code, en voeg een
    test toe die de fout had moeten vangen.

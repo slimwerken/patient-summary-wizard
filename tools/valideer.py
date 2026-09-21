@@ -147,7 +147,11 @@ def main() -> int:
         sys.exit("De validator gaf geen leesbare uitslag, zie hierboven.")
 
     totaal_fouten = 0
+    soorten = {}
     for bestand, meldingen in uitslag.items():
+        for niveau, _, bericht in meldingen:
+            sleutel = (niveau, re.sub(r"[0-9a-f]{8}-[0-9a-f-]{27}", "<id>", bericht)[:180])
+            soorten[sleutel] = soorten.get(sleutel, 0) + 1
         fouten = [m for m in meldingen if m[0] == "Error"]
         waarschuwingen = [m for m in meldingen if m[0] == "Warning"]
         adviezen = [m for m in meldingen if m[0] == "Advies"]
@@ -164,6 +168,13 @@ def main() -> int:
                 print(f"    advies {pad}\n          {bericht}")
     print("\nAlles goedgekeurd op de vorm. Of de inhoud klopt, beoordeelt een mens via de mapping."
           if not totaal_fouten else f"\n{totaal_fouten} fout(en) om op te lossen.")
+    if soorten:
+        namen = {"Error": "fout", "Warning": "let op", "Advies": "advies"}
+        print("\nPer soort melding (meest voorkomend eerst):")
+        for (niveau, bericht), aantal in sorted(soorten.items(), key=lambda x: (x[0][0] != "Error", -x[1]))[:12]:
+            print(f"  {aantal:>4}x {namen.get(niveau, niveau)}: {bericht}")
+        if len(soorten) > 12:
+            print(f"  ... en nog {len(soorten) - 12} andere soorten (zie --alles)")
     alle_fouten = [m for meldingen in uitslag.values() for m in meldingen if m[0] == "Error"]
     slice_fouten = [m for m in alle_fouten if "a matching slice is required" in m[2]]
     if slice_fouten and len(slice_fouten) < len(alle_fouten):

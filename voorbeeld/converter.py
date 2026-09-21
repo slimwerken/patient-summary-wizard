@@ -21,7 +21,7 @@ import sys
 import uuid
 from datetime import datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import vertaling as v  # noqa: E402
@@ -421,7 +421,12 @@ def maak_patient_summary(dossier: dict, tijdstip: str) -> tuple:
 # ---------------------------------------------------------------- draaien
 
 def nu() -> str:
-    return datetime.now(ZoneInfo("Europe/Amsterdam")).replace(microsecond=0).isoformat()
+    try:
+        zone = ZoneInfo("Europe/Amsterdam")
+    except ZoneInfoNotFoundError:
+        # Op Windows zonder het pakket tzdata: neem de tijdzone van de computer zelf
+        return datetime.now().astimezone().replace(microsecond=0).isoformat()
+    return datetime.now(zone).replace(microsecond=0).isoformat()
 
 
 def main() -> int:
