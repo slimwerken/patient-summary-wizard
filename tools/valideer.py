@@ -55,8 +55,13 @@ def vind_java(verplicht: bool = True):
 def keur(bestanden, offline: bool) -> str:
     if not JAR.exists():
         sys.exit(f"Validator niet gevonden op {JAR}. Draai: python3 tools/valideer.py --controleer")
-    opdracht = [vind_java(), "-jar", str(JAR), *map(str, bestanden),
-                "-version", "4.0.1", "-ig", str(SPEC), "-output-style", "compact"]
+    # Taal vast op Engels. Staat de laptop op Nederlands, dan eist de validator anders
+    # Nederlandse namen bij elke LOINC- en SNOMED-code en keurt hij goede bundels af
+    # (gezien op een Nederlandse MacBook, 22 september 2026).
+    opdracht = [vind_java(), "-Duser.language=en", "-Duser.country=US", "-Dfile.encoding=UTF-8",
+                "-jar", str(JAR), *map(str, bestanden),
+                "-version", "4.0.1", "-ig", str(SPEC), "-output-style", "compact",
+                "-language", "en", "-locale", "en-US"]
     if offline:
         opdracht += ["-tx", "n/a"]
     uit = subprocess.run(opdracht, capture_output=True, text=True, cwd=PROJECT)
@@ -90,7 +95,10 @@ def controleer() -> int:
     print("… Proefkeuring met het officiele voorbeeld (de eerste keer 1 tot 2 minuten)", flush=True)
     with tarfile.open(SPEC) as tgz, tempfile.TemporaryDirectory() as tmp:
         naam = "package/example/Bundle-EPSExampleBundle01NoProblemsMedicationAllergies.json"
-        tgz.extract(naam, tmp)
+        try:
+            tgz.extract(naam, tmp, filter="data")
+        except TypeError:  # Python ouder dan 3.12 kent filter niet
+            tgz.extract(naam, tmp)
         uitslag = lees_uitslag(keur([Path(tmp) / naam], offline=False))
     fouten = sum(1 for m in uitslag.values() for x in m if x[0] == "Error")
     if uitslag and not fouten:

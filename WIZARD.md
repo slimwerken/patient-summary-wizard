@@ -101,6 +101,9 @@ Let op bij de mapping:
   optionele secties voor vitale functies (LOINC 8716-3) en uitslagen (LOINC 30954-2).
 - Datum-tijden zonder tijdzone: lees ze als Nederlandse tijd (Europe/Amsterdam) en zet die
   keuze in de mapping.
+- Zet geen `language` op het document of de onderdelen, tenzij je bij elke code de
+  Nederlandse naam gebruikt. Met `language` = nl eist de keuring Nederlandse namen bij
+  alle LOINC- en SNOMED-codes. Zonder `language` gebruik je de officiele Engelse namen.
 - De Patient Summary werkt het liefst met SNOMED CT. Heeft het systeem andere codes
   (ICPC, ICD-10, ATC), neem die over en zet een vertaling naar SNOMED alleen erbij als
   die onderbouwd is. De rest wordt een open vraag.
