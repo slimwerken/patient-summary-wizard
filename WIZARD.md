@@ -121,13 +121,17 @@ Schrijf tests in `mijn-koppeling/tests/` en draai ze. Vertel hoeveel er groen zi
 
 1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden). Onderaan staat
    een samenvatting per soort melding; begin daar, niet bij de losse regels.
-   Is er een validatie-tool via MCP ingesteld (bijvoorbeeld van Interoplab), gebruik die ook.
-2. Per fout: zoek de regel in de spec, pas EERST de mapping aan, dan de code, en voeg een
+2. Extra keuring van Interoplab (optioneel). In `.mcp.json` staat hun validator als
+   MCP-server. Claude Code vraagt de eerste keer of je hem wilt gebruiken; daarna logt de
+   gebruiker in met een Microsoft-account via `/mcp` (kies interoplab, dan Authenticate).
+   Stuur er alleen testdata naartoe. Lukt inloggen niet of ligt de server eruit, ga dan
+   gewoon door met `tools/valideer.py`: de middag hangt er niet van af.
+3. Per fout: zoek de regel in de spec, pas EERST de mapping aan, dan de code, en voeg een
    test toe die de fout had moeten vangen.
-3. Herhaal, maximaal vijf rondes. Vertel na elke ronde kort: van hoeveel fouten naar hoeveel.
-4. Ook als de eerste ronde al 0 fouten geeft: loop de adviezen over codelijsten na
+4. Herhaal, maximaal vijf rondes. Vertel na elke ronde kort: van hoeveel fouten naar hoeveel.
+5. Ook als de eerste ronde al 0 fouten geeft: loop de adviezen over codelijsten na
    (zichtbaar met `--alles`). Die zeggen welke codes de spec liever ziet.
-5. Aan het eind: welke waarschuwingen blijven over en waarom. Een deel komt uit de spec
+6. Aan het eind: welke waarschuwingen blijven over en waarom. Een deel komt uit de spec
    zelf (Europese codelijsten die niet te laden zijn, Nederlandse codelijsten die de
    internationale validator niet kent). Fouten moeten weg; waarschuwingen moet je kunnen uitleggen.
 
