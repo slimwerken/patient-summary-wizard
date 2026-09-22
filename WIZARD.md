@@ -141,23 +141,28 @@ Schrijf tests in `mijn-koppeling/tests/` en draai ze. Vertel hoeveel er groen zi
 1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden). Onderaan staat
    een samenvatting per soort melding; begin daar, niet bij de losse regels.
 2. Extra keuring van Interoplab (optioneel). In `.mcp.json` staat hun validator als
-   MCP-server. Is hij ingelogd (de gebruiker deed `/mcp`, interoplab, Authenticate met een
-   Microsoft-account), laat dan ook een bundel door hun validator keuren. Werkt hij niet,
-   ga gewoon door: de middag hangt er niet van af.
+   MCP-server. Staat er een tool die begint met `mcp__interoplab` in je toollijst, laat
+   dan ook een bundel door hun validator keuren. Staat die er niet, sla dit over zonder
+   te zoeken: de middag hangt er niet van af.
 3. Per fout: zoek de regel in de spec, pas EERST de mapping aan, dan de code, en voeg een
    test toe die de fout had moeten vangen.
 4. Herhaal, maximaal vijf rondes. Vertel na elke ronde kort: van hoeveel fouten naar hoeveel.
 5. Ook als de eerste ronde al 0 fouten geeft: loop de adviezen over codelijsten na.
-   Die zeggen welke codes de spec liever ziet.
-6. Aan het eind: welke waarschuwingen blijven over en waarom. Een deel komt uit de spec
-   zelf (Europese codelijsten die niet te laden zijn, Nederlandse codelijsten die de
-   internationale validator niet kent). Fouten moeten weg; waarschuwingen moet je kunnen uitleggen.
+   Die zeggen welke codes de spec liever ziet. Vraagt een advies om een code die je niet
+   kunt onderbouwen (regel 4), dan wordt dat een open vraag; ga er niet naar zoeken.
+6. Zet onderaan `mijn-koppeling/mapping.md` een kopje "Keuring": welke waarschuwingen
+   blijven over en waarom, en welke open vragen erbij kwamen. Een deel van de
+   waarschuwingen komt uit de spec zelf (Europese codelijsten die niet te laden zijn,
+   Nederlandse codelijsten die de internationale validator niet kent). Fouten moeten weg;
+   waarschuwingen moet je kunnen uitleggen. Nieuwe open vragen leg je NIET opnieuw voor
+   (dat zou een vijfde klik zijn); ze staan in de mapping en komen terug in stap 7.
 
 ## Stap 6. Vastleggen (geen vraag)
 
 Leg de werkwijze vast zodat de gebruiker hem later met een opdracht opnieuw draait:
 - Claude Code: `.claude/skills/patient-summary/SKILL.md` (draaien, keuren, fout oplossen,
-  wat te doen bij een nieuwe versie van de spec).
+  wat te doen bij een nieuwe versie van de spec). Zet erin dat `specs/package/` eerst
+  uitgepakt moet worden als die map ontbreekt (hij staat in `.gitignore`).
 - Andere assistenten: `mijn-koppeling/DRAAIEN.md` met dezelfde stappen.
 
 ## Stap 7. Afronden (klik 4)
