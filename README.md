@@ -11,8 +11,9 @@ Gemaakt voor de AI mini-plugathon van Nictiz op 23 september 2026.
 
 **Met Claude Code (aanbevolen)**
 1. Download deze map (groene knop *Code* > *Download ZIP*) en pak hem uit.
-2. Open de map in VS Code en open Claude Code.
-3. Typ `/start`.
+2. Zet een export van je testdata in de map `mijn-data/` (zie `EXPORT.md`).
+3. Open de map in VS Code en open Claude Code.
+4. Typ `/start`. Daarna klik je nog vier keer; de rest doet de wizard.
 
 **Met Codex of een andere codeer-assistent**
 1. Open de map in je assistent.
@@ -32,7 +33,7 @@ niet op de wifi hoeft te wachten. Of vraag je assistent: *Zet de keuring klaar.*
 - Python 3.9 of nieuwer
 - Java 17 of nieuwer, voor de keuring (de wizard installeert hem als het kan)
 - Een abonnement op je AI-assistent (bij Claude is Pro genoeg)
-- Testdata van je eigen systeem, of de oefen-database die hier al in zit
+- Een export van je testdata in `mijn-data/` (Excel, CSV, dump, schermafdruk: alles is goed, zie `EXPORT.md`), of de oefen-database die hier al in zit
 
 ## Spelregels
 
@@ -46,6 +47,7 @@ niet op de wifi hoeft te wachten. Of vraag je assistent: *Zet de keuring klaar.*
 | Map of bestand | Wat |
 |---|---|
 | `WIZARD.md` | De stappen die de assistent met je doorloopt |
+| `EXPORT.md` | Hoe je per systeem een export van je testdata maakt |
 | `STAPPEN.md` | Dezelfde route, maar dan zelf de opdrachten intypen |
 | `data/epd.sqlite` | Oefen-database van een verzonnen huisartsenpraktijk (vijf verzonnen patienten) |
 | `specs/` | De specificatie van de HL7 Europe Patient Summary (versie van 11 september 2026) |

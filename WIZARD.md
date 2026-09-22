@@ -1,7 +1,7 @@
 # Wizard: van je eigen testdata naar een Patient Summary
 
-Dit bestand is voor de AI-assistent (Claude Code, Codex, ChatGPT of een andere
-codeer-assistent). Jij, de assistent, loodst de gebruiker hier stap voor stap doorheen.
+Dit bestand is voor de AI-assistent (Claude Code, Codex of een andere codeer-assistent).
+Jij, de assistent, loodst de gebruiker hier stap voor stap doorheen.
 
 ## Jouw rol
 
@@ -9,10 +9,12 @@ De gebruiker is een softwareleverancier in de zorg. Het doel: patientgegevens ui
 eigen systeem omzetten naar de **HL7 Europe Patient Summary** (FHIR R4), met een gewoon
 Python-script dat de gebruiker daarna zelf kan draaien en aanpassen.
 
-**Jij doet het technische werk. De gebruiker kiest en controleert.**
+**Jij doet het technische werk. De gebruiker klikt en controleert.** Hou het aantal
+vragen zo laag mogelijk: in een normale run zijn het er vier (zie de stappen). Alles wat
+je zelf kunt uitzoeken of redelijk kunt kiezen, doe je zelf en leg je vast in de mapping.
 
-- Stel steeds EEN vraag tegelijk. Geef waar het kan 2 tot 4 keuzes, met je aanbeveling bovenaan.
-  Kan je tool keuzeknoppen tonen (zoals AskUserQuestion in Claude Code), gebruik die.
+- Stel steeds EEN vraag tegelijk, met 2 tot 4 knoppen en je aanbeveling bovenaan.
+  Kan je tool keuzeknoppen tonen (AskUserQuestion in Claude Code), gebruik die altijd.
 - Zeg in een zin wat je gaat doen, doe het, en zeg in een zin wat eruit kwam.
 - Voer commando's zelf uit. Vraag de gebruiker nooit om code te schrijven of te plakken.
 - Schrijf in gewoon Nederlands. Leg een vakterm kort uit als je hem voor het eerst gebruikt.
@@ -54,40 +56,57 @@ Het werk van de gebruiker komt in `mijn-koppeling/`. De uitvoer in `output/`.
    een nep-`java` die faalt terwijl de keuring gewoon werkt.
 2. Meldt hij dat Java ontbreekt: installeer het als dat kan (macOS: `brew install openjdk`)
    en draai de controle opnieuw. Lukt het niet, zeg dat kort en ga door: de keuring kan later.
-3. Vertel de gebruiker in drie zinnen wat er gaat gebeuren: we lezen je testdata, we maken
-   samen de mapping naar de Patient Summary, en jij krijgt een script dat de omzetting doet.
+3. Kijk in `mijn-data/`. Staat daar iets (behalve `.gitkeep`)? Dan is dat de testdata.
+4. Vertel de gebruiker in drie zinnen wat er gaat gebeuren: ik lees je testdata, ik maak
+   de mapping naar de Patient Summary en jij controleert die, daarna bouw ik het script en
+   laat ik het keuren.
 
-## Stap 1. Waar staat je testdata?
+## Stap 1. De testdata (klik 1)
 
-Vraag (keuzes):
-- **Een exportbestand** (CSV, Excel, JSON of XML). Vraag het bestand in `mijn-data/` te zetten.
-  Excel inlezen gaat met openpyxl: installeer het zelf als het ontbreekt
-  (`python3 -m pip install openpyxl`). Excel-formules: lees de opgeslagen uitkomst
-  (`data_only=True`).
+Staat er iets in `mijn-data/`, stel dan EEN vraag: "In mijn-data/ staat <bestanden>. Is
+dit testdata, zonder echte patientgegevens?" Knoppen: "Ja, alleen testdata" (aanbevolen)
+en "Nee of weet ik niet". Alleen bij ja ga je door.
+
+Is `mijn-data/` leeg, stel dan EEN vraag: "Waar staat je testdata?" Knoppen:
+- **Ik zet nu een export in mijn-data/** (aanbevolen; zeg dat elke vorm goed is: Excel,
+  CSV, JSON, XML, een database-dump, een schermafdruk of zelfs een enkele rij). Wacht
+  daarna tot de gebruiker "klaar" zegt en kijk opnieuw.
 - **Een testdatabase** (vraag welk type en hoe je erbij komt; alleen-lezen is genoeg).
 - **Een API van de testomgeving** (vraag de documentatie of een voorbeeldantwoord).
 - **Nog niets, ik oefen eerst** (gebruik `data/epd.sqlite`).
+Vraag daarna alsnog de testdata-bevestiging hierboven.
 
-Vraag daarna: "Is dit zeker testdata, zonder echte patientgegevens?" Alleen bij ja ga je door.
+Lezen van de data, wat de vorm ook is:
+- Excel: openpyxl, installeer het zelf als het ontbreekt (`python3 -m pip install openpyxl`);
+  formules lees je als opgeslagen uitkomst (`data_only=True`).
+- Een schermafdruk of foto: bekijk de afbeelding en lees de kolommen en waarden eruit.
+  Zeg erbij dat een echt exportbestand straks nodig is om het script te kunnen draaien.
+- Een SQL-dump (`.sql`): lees de CREATE TABLE- en INSERT-regels; laad hem desnoods in
+  SQLite om hem te doorzoeken.
+- Een enkele rij of een klein voorbeeld: genoeg om de mapping te maken. Meld dat de
+  velden die je niet gezien hebt in de mapping als open punt staan.
+- Weet je niet hoe de gebruiker een export moet maken? Kijk in `EXPORT.md`: daar staat
+  per systeem hoe dat gaat.
 
-## Stap 2. De data verkennen
+## Stap 2. Verkennen (geen vraag)
 
 Lees de data zelf in. Laat daarna in gewone taal zien wat je vond: welke tabellen of
 velden er zijn en welke over de patient, problemen, allergieen, medicatie, verrichtingen
 en hulpmiddelen gaan. Noem opvallende dingen (datumnotatie, eigen codes, lege velden).
+Stel hier GEEN vraag; onduidelijkheden neem je mee naar de mapping.
 
-Vraag: "Klopt dit beeld?" Pas aan op wat de gebruiker zegt.
-
-## Stap 3. De mapping maken
+## Stap 3. De mapping maken (klik 2 en 3)
 
 1. Pak de specificatie uit (`tar -xzf specs/hl7.fhir.eu.eps.tgz -C specs/`) en lees de
    kernprofielen uit `specs/README.md`. Kijk ook naar de verplichte onderdelen in de
    snapshot en naar de voorbeelden in `specs/package/example/`.
 2. Schrijf `mijn-koppeling/mapping.md`: per veld uit de data het FHIR-pad en de regel voor
-   de omzetting, en onderaan "Open vragen" voor alles wat je niet zeker weet.
-3. Laat de mapping zien als tabel en vraag: "Klopt dit met hoe jullie systeem werkt?"
-4. Leg de open vragen GEBUNDELD voor: maximaal vier per keer, en bij elke vraag de optie
-   "Laat staan voor Nictiz". Niet een voor een; de gebruiker weet de meeste niet.
+   de omzetting. Neem redelijke keuzes zelf en zet ze onder "Besluiten" (met reden). Wat
+   echt vakkennis vraagt komt onder "Open vragen".
+3. **Klik 2.** Laat de mapping zien als tabel en vraag: "Klopt dit met hoe jullie systeem
+   werkt?" Knoppen: "Ja" (aanbevolen), "Ik wil iets aanpassen", "Weet ik niet, laat het staan".
+4. **Klik 3.** Leg ALLE open vragen in EEN keer voor, in een scherm, met per vraag je
+   aanbeveling en de optie "Laat staan voor Nictiz". Niet een voor een.
 
 Let op bij de mapping:
 - De vijf verplichte secties zijn Problemen, Allergieen, Medicatie, Verrichtingen en
@@ -97,10 +116,10 @@ Let op bij de mapping:
   arts heeft vastgesteld dat er niets is, en dat weet een systeem zelf niet.
 - Heeft de export geen tabel voor een verplicht onderdeel (bijvoorbeeld medicatie of
   verrichtingen), dan komt dat onderdeel er toch in, leeg, met een `emptyReason`.
-- Extra gegevens zoals metingen en labuitslagen: vraag of ze mee moeten. Ze horen in de
-  optionele secties voor vitale functies (LOINC 8716-3) en uitslagen (LOINC 30954-2).
+- Extra gegevens zoals metingen en labuitslagen: neem ze mee in de optionele secties voor
+  vitale functies (LOINC 8716-3) en uitslagen (LOINC 30954-2). Geen aparte vraag.
 - Datum-tijden zonder tijdzone: lees ze als Nederlandse tijd (Europe/Amsterdam) en zet die
-  keuze in de mapping.
+  keuze onder Besluiten.
 - Zet geen `language` op het document of de onderdelen, tenzij je bij elke code de
   Nederlandse naam gebruikt. Met `language` = nl eist de keuring Nederlandse namen bij
   alle LOINC- en SNOMED-codes. Zonder `language` gebruik je de officiele Engelse namen.
@@ -108,7 +127,7 @@ Let op bij de mapping:
   (ICPC, ICD-10, ATC), neem die over en zet een vertaling naar SNOMED alleen erbij als
   die onderbouwd is. De rest wordt een open vraag.
 
-## Stap 4. Het script bouwen
+## Stap 4. Het script bouwen (geen vraag)
 
 Schrijf `mijn-koppeling/converter.py` volgens de mapping. Codevertalingen in een aparte
 tabel (`mijn-koppeling/vertaling.py`). Vaste id's, zodat dezelfde invoer altijd dezelfde
@@ -117,33 +136,33 @@ run exact te herhalen is (ook voor de tests). Uitvoer: `output/patient-<nummer>.
 
 Schrijf tests in `mijn-koppeling/tests/` en draai ze. Vertel hoeveel er groen zijn.
 
-## Stap 5. Keuren en verbeteren
+## Stap 5. Keuren en verbeteren (geen vraag)
 
 1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden). Onderaan staat
    een samenvatting per soort melding; begin daar, niet bij de losse regels.
 2. Extra keuring van Interoplab (optioneel). In `.mcp.json` staat hun validator als
-   MCP-server. Claude Code vraagt de eerste keer of je hem wilt gebruiken; daarna logt de
-   gebruiker in met een Microsoft-account via `/mcp` (kies interoplab, dan Authenticate).
-   Stuur er alleen testdata naartoe. Lukt inloggen niet of ligt de server eruit, ga dan
-   gewoon door met `tools/valideer.py`: de middag hangt er niet van af.
+   MCP-server. Is hij ingelogd (de gebruiker deed `/mcp`, interoplab, Authenticate met een
+   Microsoft-account), laat dan ook een bundel door hun validator keuren. Werkt hij niet,
+   ga gewoon door: de middag hangt er niet van af.
 3. Per fout: zoek de regel in de spec, pas EERST de mapping aan, dan de code, en voeg een
    test toe die de fout had moeten vangen.
 4. Herhaal, maximaal vijf rondes. Vertel na elke ronde kort: van hoeveel fouten naar hoeveel.
-5. Ook als de eerste ronde al 0 fouten geeft: loop de adviezen over codelijsten na
-   (zichtbaar met `--alles`). Die zeggen welke codes de spec liever ziet.
+5. Ook als de eerste ronde al 0 fouten geeft: loop de adviezen over codelijsten na.
+   Die zeggen welke codes de spec liever ziet.
 6. Aan het eind: welke waarschuwingen blijven over en waarom. Een deel komt uit de spec
    zelf (Europese codelijsten die niet te laden zijn, Nederlandse codelijsten die de
    internationale validator niet kent). Fouten moeten weg; waarschuwingen moet je kunnen uitleggen.
 
-## Stap 6. Vastleggen
+## Stap 6. Vastleggen (geen vraag)
 
 Leg de werkwijze vast zodat de gebruiker hem later met een opdracht opnieuw draait:
 - Claude Code: `.claude/skills/patient-summary/SKILL.md` (draaien, keuren, fout oplossen,
   wat te doen bij een nieuwe versie van de spec).
 - Andere assistenten: `mijn-koppeling/DRAAIEN.md` met dezelfde stappen.
 
-## Stap 7. Afronden
+## Stap 7. Afronden (klik 4)
 
 Geef een korte samenvatting: wat er nu staat, hoeveel dossiers goedgekeurd, welke open
 vragen er nog liggen voor iemand van Nictiz, en de ene opdracht waarmee de gebruiker het
-morgen opnieuw draait.
+morgen opnieuw draait. Sluit af met EEN vraag: "Wil je een van de dossiers bekijken?"
+Knoppen: "Ja, laat er een zien" (aanbevolen) en "Nee, klaar".
