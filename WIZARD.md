@@ -214,7 +214,8 @@ Bij de veilige route gelden drie extra regels:
 ## Stap 6. Vastleggen (geen vraag)
 
 Leg de werkwijze vast zodat de gebruiker hem later met een opdracht opnieuw draait:
-- Claude Code: `.claude/skills/patient-summary/SKILL.md` (draaien, keuren, fout oplossen,
+- Claude Code: `.claude/skills/patient-summary/SKILL.md` (draaien, keuren, bekijken met
+  `python3 tools/bekijk.py --open`, fout oplossen,
   wat te doen bij een nieuwe versie van de spec). Zet erin dat `specs/package/` eerst
   uitgepakt moet worden als die map ontbreekt (hij staat in `.gitignore`).
 - Andere assistenten: `mijn-koppeling/DRAAIEN.md` met dezelfde stappen.
@@ -224,7 +225,13 @@ Leg de werkwijze vast zodat de gebruiker hem later met een opdracht opnieuw draa
 Geef een korte samenvatting: wat er nu staat, hoeveel dossiers goedgekeurd, welke open
 vragen er nog liggen voor iemand van Nictiz, en hoe de gebruiker het opnieuw draait:
 nieuwe export in `mijn-data/`, dan `python3 mijn-koppeling/converter.py` in de terminal
-(de omzetting zelf, zonder AI) of `/patient-summary` in Claude Code (omzetten plus keuren). Sluit af met EEN vraag: "Wil je een van de dossiers bekijken?"
-Knoppen: "Ja, laat er een zien" (aanbevolen) en "Nee, klaar". Bij de veilige route zijn de
-knoppen "Ja, welk bestand open ik?" (aanbevolen) en "Nee, klaar": je laat het dossier dan
-niet zelf zien, je zegt welk bestand de gebruiker kan openen in `output/`.
+(de omzetting zelf, zonder AI) of `/patient-summary` in Claude Code (omzetten plus keuren).
+
+Sluit af met EEN vraag: "Wil je de dossiers zien zoals een arts ze ontvangt?"
+Knoppen: "Ja, open ze in de browser" (aanbevolen) en "Nee, klaar".
+Bij ja: draai `python3 tools/bekijk.py --open`. Dat maakt van elk dossier een leesbare
+pagina (`output/patient-<nummer>.html`) en opent het overzicht `output/index.html` in de
+browser. Zeg erbij: "Het JSON-bestand is wat je verstuurt. Deze pagina laat zien wat erin
+staat, met de codes die de computer van de ontvanger leest."
+Dit werkt ook op de veilige route: het script draait op deze computer en zet geen gegevens
+in de terminal. Jij opent de pagina's dan niet zelf.

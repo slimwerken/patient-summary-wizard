@@ -54,6 +54,7 @@ niet op de wifi hoeft te wachten. Of vraag je assistent: *Zet de keuring klaar.*
 | `data/epd.sqlite` | Oefen-database van een verzonnen huisartsenpraktijk (vijf verzonnen patienten) |
 | `specs/` | De specificatie van de HL7 Europe Patient Summary (versie van 11 september 2026) |
 | `tools/valideer.py` | De keuring met de officiele HL7-validator |
+| `tools/bekijk.py` | Maakt van elk dossier een leesbare pagina, zoals een arts hem ziet |
 | `voorbeeld/` | Een complete, goedgekeurde koppeling voor de oefen-database |
 | `mijn-koppeling/` | Hier komt jouw werk |
 
