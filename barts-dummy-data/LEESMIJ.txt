@@ -1,0 +1,3 @@
+Export uit de testomgeving van Huisartsenpraktijk Noorderhaven (verzonnen praktijk, alleen testdata).
+Een CSV per tabel, gescheiden met puntkomma. Datums als DD-MM-JJJJ. Geslacht: M, V, O of leeg.
+Probleemlijst gecodeerd met ICPC-1, medicatie met ATC. Allergieen als vrije tekst.

@@ -1,0 +1,6 @@
+pat_id;voornaam;tussenvoegsel;achternaam;geslacht;geboortedatum;straat;huisnummer;postcode;woonplaats;telefoon;arts_id
+1001;Anna;de;Boer;V;14-03-1952;Duinstraat;12;2584 AB;Den Haag;06 0000 0001;11
+1002;Pieter;;Jansen;M;02-11-1978;Laan van Meerdervoort;210;2563 AL;Den Haag;06 0000 0002;11
+1003;Fatima;el;Amrani;V;30-04-1990;Weimarstraat;88;2562 GV;Den Haag;06 0000 0003;12
+1004;Kees;van;Dijk;M;21-07-1945;Sportlaan;7;2566 LA;Den Haag;070 000 0004;12
+1005;Sam;;Visser;;09-01-2001;Prinsegracht;31;2512 EW;Den Haag;;12
