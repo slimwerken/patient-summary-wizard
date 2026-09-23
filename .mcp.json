@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "interoplab": {
-      "type": "http",
-      "url": "https://mcp.interoplab.eu/mcp"
-    }
-  }
-}

@@ -246,8 +246,9 @@ Bij de veilige route gelden drie extra regels:
 1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden). Bij de veilige
    route: `python3 tools/valideer.py --alles --veilig`. Onderaan staat
    een samenvatting per soort melding; begin daar, niet bij de losse regels.
-2. **Dubbelcheck met Interoplab (altijd hardop, geen vraag).** Hun validator staat als
-   MCP-server in `.mcp.json` (Claude Code) en `.vscode/mcp.json` (GitHub Copilot). Noem
+2. **Dubbelcheck met Interoplab (altijd hardop, geen vraag).** Hun validator is een
+   MCP-server met een eigen sleutel. Die sleutel staat NIET in deze map; de deelnemer
+   vindt hem op link.slimwerken.ai/nictiz (stap 8, met het wachtwoord uit de zaal). Noem
    deze stap ALTIJD, ook als hij niet kan:
    - Heb je een tool van de interoplab-server (in Claude Code beginnen ze met
      `mcp__interoplab`, elders heten ze bijvoorbeeld `fhir_validate_resource`) en is het testdata,
@@ -256,9 +257,12 @@ Bij de veilige route gelden drie extra regels:
      daarna beide uitslagen naast elkaar in een kleine tabel: per dossier de fouten
      lokaal en de fouten bij Interoplab.
    - Staat die tool er niet, zeg dan: "De dubbelcheck van Interoplab staat nog niet aan.
-     Typ /mcp, kies interoplab en log in, dan doe ik hem erbij." In GitHub Copilot is het:
-     "Open .vscode/mcp.json en klik boven interoplab op Start." Heeft je assistent geen
-     MCP, zeg dan dat de dubbelcheck met Claude Code of Copilot kan, en ga door. Ga daarna gewoon door
+     Op link.slimwerken.ai/nictiz, stap 8, staat een tekst die je hier plakt; daarna laad
+     je VS Code opnieuw en doe ik hem erbij." In GitHub Copilot: "Open .vscode/mcp.json,
+     klik boven interoplab op Start en plak de sleutel van die pagina." Heeft je assistent
+     geen MCP, zeg dan dat de dubbelcheck met Claude Code of Copilot kan, en ga door.
+   - Plakt de gebruiker die tekst met de sleutel, voer hem uit zoals er staat. Herhaal de
+     sleutel nooit in je antwoord en zet hem in geen enkel ander bestand. Ga daarna gewoon door
      met stap 3 hieronder; wacht er niet op en zoek niet verder. Zegt de gebruiker later
      dat hij is ingelogd, doe dan alsnog de dubbelcheck.
    - Is het geen testdata (veilige route), zeg dan: "De dubbelcheck van Interoplab sla ik
