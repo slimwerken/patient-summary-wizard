@@ -10,6 +10,7 @@ Gebruik:
     python3 tools/valideer.py output/patient-1001.json
     python3 tools/valideer.py --alles             ook waarschuwingen tonen
     python3 tools/valideer.py --offline           zonder terminologieserver
+    python3 tools/valideer.py --alles --veilig    veilige route: geen codes of waarden in beeld
     python3 tools/valideer.py --controleer        alles klaarzetten en een proefkeuring
 
 Nodig: Java 17 of nieuwer en de validator in ~/.fhir-validator/validator_cli.jar.
@@ -133,11 +134,33 @@ def lees_uitslag(tekst: str) -> dict:
     return uitslag
 
 
+def zonder_waarden(bericht: str) -> str:
+    """Veilige route: haal codes en letterlijke waarden uit een melding. Wat overblijft
+    zegt nog steeds wat er mis is en waar, maar niet over welke patientgegevens.
+    Namen van codelijsten ("value set '...'") en adressen van de spec blijven staan."""
+    url = r"https?://[^\s'\"()|#]+"
+    bericht = re.sub(r"\(codes? = [^)]*\)", "(code verborgen)", bericht)
+    bericht = re.sub(f"({url})#[^\\s,)'\"|]+", r"\1#…", bericht)
+
+    def tussen_aanhalingstekens(m):
+        voor, binnen = bericht[max(0, m.start() - 10):m.start()], m.group(0)[1:-1]
+        if voor.endswith("value set ") or re.fullmatch(f"{url}(#…)?(\\|[\\w.]+)?", binnen):
+            return m.group(0)
+        return m.group(0)[0] + "…" + m.group(0)[0]
+
+    bericht = re.sub(r"'[^']*'|\"[^\"]*\"", tussen_aanhalingstekens, bericht)
+    delen = re.split(r"('[^']*'|https?://\S+)", bericht)
+    return "".join(d if "http" in d or d.startswith("'") else re.sub(r"\d[\d.,:-]*", "…", d)
+                   for d in delen)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Keur Patient Summary-bundels")
     parser.add_argument("bestanden", nargs="*")
     parser.add_argument("--alles", action="store_true", help="toon ook de waarschuwingen")
     parser.add_argument("--offline", action="store_true", help="codes niet online controleren")
+    parser.add_argument("--veilig", action="store_true",
+                        help="veilige route: laat geen codes of waarden uit de dossiers zien")
     parser.add_argument("--controleer", action="store_true", help="alles klaarzetten en een proefkeuring doen")
     args = parser.parse_args()
     if args.controleer:
@@ -156,6 +179,8 @@ def main() -> int:
 
     totaal_fouten = 0
     soorten = {}
+    if args.veilig:
+        uitslag = {b: [(n, pad, zonder_waarden(t)) for n, pad, t in m] for b, m in uitslag.items()}
     for bestand, meldingen in uitslag.items():
         for niveau, _, bericht in meldingen:
             sleutel = (niveau, re.sub(r"[0-9a-f]{8}-[0-9a-f-]{27}", "<id>", bericht)[:180])

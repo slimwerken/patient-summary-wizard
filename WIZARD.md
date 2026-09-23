@@ -26,7 +26,9 @@ je zelf kunt uitzoeken of redelijk kunt kiezen, doe je zelf en leg je vast in de
    het niet, dan volg je de VEILIGE ROUTE: je opent de bestanden in `mijn-data/` NOOIT
    zelf, ook niet een paar regels. Je leest alleen het overzicht dat `tools/overzicht.py`
    lokaal maakt (namen, adressen, nummers en geboortedatums staan daar alleen als vorm in),
-   en je bekijkt ook de gemaakte dossiers in `output/` niet.
+   en je bekijkt ook de gemaakte dossiers in `output/` niet. Ook in de terminal komt geen
+   data voorbij: de converter meldt alleen aantallen en bestandsnamen, en de keuring draai
+   je met `--veilig`, zodat hij geen codes of waarden per dossier laat zien.
 2. **Alles blijft op deze computer.** Stuur geen data naar een externe dienst, behalve een
    validatie-tool die de gebruiker zelf heeft ingesteld. Losse CODES opzoeken bij de
    terminologieserver (tx.fhir.org, die gebruikt de keuring ook) mag wel: daar gaat
@@ -141,6 +143,10 @@ Let op bij de mapping:
 - Zet geen `language` op het document of de onderdelen, tenzij je bij elke code de
   Nederlandse naam gebruikt. Met `language` = nl eist de keuring Nederlandse namen bij
   alle LOINC- en SNOMED-codes. Zonder `language` gebruik je de officiele Engelse namen.
+- Veilige route: codes die niet in het overzicht staan, heb je niet gezien. Vul de
+  vertaaltabel daar NIET mee aan als ze later toevallig ergens voorbijkomen. De converter
+  schrijft ze in `output/open-punten.md` voor de gebruiker, en in de mapping staat een
+  open vraag.
 - De Patient Summary werkt het liefst met SNOMED CT. Heeft het systeem andere codes
   (ICPC, ICD-10, ATC), neem die over en zet een vertaling naar SNOMED alleen erbij als
   die onderbouwd is. De rest wordt een open vraag.
@@ -156,9 +162,16 @@ run exact te herhalen is (ook voor de tests). Uitvoer: `output/patient-<nummer>.
 
 Schrijf tests in `mijn-koppeling/tests/` en draai ze. Vertel hoeveel er groen zijn.
 
+Bij de veilige route gelden drie extra regels:
+- De converter zet geen gegevens in de terminal: alleen hoeveel dossiers en open punten,
+  en de bestandsnamen. Wat hij niet kon vertalen schrijft hij in `output/open-punten.md`.
+- Een foutmelding van de converter noemt waar het zit (bestand, rij, kolom), nooit de waarde.
+- De tests draaien alleen op rijen die je zelf verzint, nooit op de bestanden in `mijn-data/`.
+
 ## Stap 5. Keuren en verbeteren (geen vraag)
 
-1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden). Onderaan staat
+1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden). Bij de veilige
+   route: `python3 tools/valideer.py --alles --veilig`. Onderaan staat
    een samenvatting per soort melding; begin daar, niet bij de losse regels.
 2. Extra keuring van Interoplab (optioneel). In `.mcp.json` staat hun validator als
    MCP-server. Staat er een tool die begint met `mcp__interoplab` in je toollijst, laat
@@ -191,5 +204,6 @@ Geef een korte samenvatting: wat er nu staat, hoeveel dossiers goedgekeurd, welk
 vragen er nog liggen voor iemand van Nictiz, en hoe de gebruiker het opnieuw draait:
 nieuwe export in `mijn-data/`, dan `python3 mijn-koppeling/converter.py` in de terminal
 (de omzetting zelf, zonder AI) of `/patient-summary` in Claude Code (omzetten plus keuren). Sluit af met EEN vraag: "Wil je een van de dossiers bekijken?"
-Knoppen: "Ja, laat er een zien" (aanbevolen) en "Nee, klaar". Bij de veilige route laat je
-het dossier niet zelf zien: zeg welk bestand de gebruiker kan openen in `output/`.
+Knoppen: "Ja, laat er een zien" (aanbevolen) en "Nee, klaar". Bij de veilige route zijn de
+knoppen "Ja, welk bestand open ik?" (aanbevolen) en "Nee, klaar": je laat het dossier dan
+niet zelf zien, je zegt welk bestand de gebruiker kan openen in `output/`.

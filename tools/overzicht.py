@@ -30,10 +30,12 @@ from pathlib import Path
 PROJECT = Path(__file__).resolve().parent.parent
 MAX_RIJEN = 5000          # meer rijen lezen we niet per tabel
 VOORBEELDEN = 3
+ALLE_CODES = 40           # code-kolommen met hooguit zoveel waarden tonen we helemaal
 
 PRIVE = re.compile(r"(naam|name|voorn|achtern|tussenv|initial|voorlett|straat|street|adres|address|"
                    r"huisnr|huisnummer|postcode|postal|zip|woonpl|city|plaats|telefoon|phone|tel|mobiel|"
-                   r"mail|bsn|burgerservice|ssn|geboorte|birth|dob|iban|rekening)", re.I)
+                   r"mail|bsn|burgerservice|ssn|geboorte|birth|dob|iban|rekening|"
+                   r"opmerk|notitie|memo|comment|note|anamnese|verslag|brief|vrije.?tekst)", re.I)
 BEELD = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".heic", ".bmp", ".tif", ".tiff", ".pdf"}
 DATUM = [(re.compile(r"^\d{4}-\d{2}-\d{2}([T ][\d:.]+)?"), "JJJJ-MM-DD"),
          (re.compile(r"^\d{2}-\d{2}-\d{4}$"), "DD-MM-JJJJ"),
@@ -67,8 +69,12 @@ def kolom_overzicht(naam: str, waarden: list) -> dict:
     gevuld = [w for w in waarden if w not in (None, "") and str(w).strip()]
     uniek = list(dict.fromkeys(str(w).strip() for w in gevuld))
     prive = bool(PRIVE.search(naam))
-    voorbeelden = [vorm(w) if prive else str(w)[:60] for w in uniek[:VOORBEELDEN]]
-    return {"kolom": naam, "soort": soort(waarden), "gevuld": f"{len(gevuld)}/{len(waarden)}",
+    wat = soort(waarden)
+    # Codes (ICPC, ATC, eigen codes) zijn geen persoonsgegevens: toon ze allemaal, anders
+    # mist de mapping vertalingen voor codes die toevallig niet bij de voorbeelden zaten.
+    aantal = len(uniek) if wat == "code" and not prive and len(uniek) <= ALLE_CODES else VOORBEELDEN
+    voorbeelden = [vorm(w) if prive else str(w)[:60] for w in uniek[:aantal]]
+    return {"kolom": naam, "soort": wat, "gevuld": f"{len(gevuld)}/{len(waarden)}",
             "verschillend": len(uniek), "voorbeelden": voorbeelden, "verborgen": prive}
 
 
@@ -76,23 +82,27 @@ def tabel(naam: str, kolommen: list, rijen: list) -> dict:
     rijen = rijen[:MAX_RIJEN]
     per_kolom = [kolom_overzicht(str(k), [r[i] if i < len(r) else None for r in rijen])
                  for i, k in enumerate(kolommen)]
-    return {"tabel": naam, "rijen": len(rijen), "kolommen": per_kolom}
+    return {"tabel": naam, "rijen": len(rijen), "kolommen": per_kolom, "bron": ""}
 
 
 # ---------------------------------------------------------------- lezers
 
-def lees_tekstbestand(pad: Path) -> str:
+def lees_met_codering(pad: Path) -> tuple:
     ruw = pad.read_bytes()
     for codering in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
         try:
-            return ruw.decode(codering)
+            return ruw.decode(codering), codering
         except UnicodeDecodeError:
             continue
-    return ruw.decode("latin-1", errors="replace")
+    return ruw.decode("latin-1", errors="replace"), "latin-1"
+
+
+def lees_tekstbestand(pad: Path) -> str:
+    return lees_met_codering(pad)[0]
 
 
 def lees_csv(pad: Path) -> list:
-    tekst = lees_tekstbestand(pad)
+    tekst, codering = lees_met_codering(pad)
     try:
         dialect = csv.Sniffer().sniff(tekst[:20000], delimiters=";,\t|")
     except csv.Error:
@@ -101,7 +111,10 @@ def lees_csv(pad: Path) -> list:
     rijen = [r for r in rijen if any(c.strip() for c in r)]
     if not rijen:
         return []
-    return [tabel(pad.name, rijen[0], rijen[1:])]
+    t = tabel(pad.name, rijen[0], rijen[1:])
+    scheiding = {"\t": "tab", ";": "puntkomma", ",": "komma", "|": "streep"}.get(dialect.delimiter, dialect.delimiter)
+    t["bron"] = f"scheidingsteken: {scheiding}, tekenset: {codering.replace('-sig', ' (met BOM)')}"
+    return [t]
 
 
 def kop_zoeken(rijen: list) -> int:
@@ -309,16 +322,19 @@ def schrijf(verslag: dict) -> str:
     r = ["# Overzicht van je testdata", "",
          "Lokaal gemaakt door `tools/overzicht.py`. Namen, adressen, telefoon, e-mail, BSN en",
          "geboortedatums zijn vervangen door hun vorm (X = letter, 9 = cijfer). De AI-assistent",
-         "leest alleen dit overzicht, niet de bestanden zelf.", ""]
+         "leest alleen dit overzicht, niet de bestanden zelf. Code-kolommen staan er helemaal in;",
+         "vrije tekst (zoals omschrijvingen) staat er letterlijk in, met hooguit drie voorbeelden.", ""]
     for t in verslag["tabellen"]:
         r += [f"## {t['tabel']}  ({t['rijen']} rijen)", "",
+              *([t["bron"], ""] if t.get("bron") else []),
               "| kolom | soort | gevuld | verschillend | voorbeelden |", "|---|---|---|---|---|"]
         for k in t["kolommen"]:
             vb = ", ".join(f"`{v}`" for v in k["voorbeelden"]) + ("  (vorm, verborgen)" if k["verborgen"] and k["voorbeelden"] else "")
             r.append(f"| {k['kolom']} | {k['soort']} | {k['gevuld']} | {k['verschillend']} | {vb} |")
         r.append("")
     if verslag["toelichting"]:
-        r += ["## Toelichting bij de export", ""]
+        r += ["## Toelichting bij de export", "",
+              "Letterlijk overgenomen uit het LEESMIJ-bestand. Staan daar namen in, haal ze daar weg.", ""]
         for naam, tekst in verslag["toelichting"]:
             r += [f"**{naam}**", "", "```", tekst.strip(), "```", ""]
     if verslag["beeld"]:
@@ -345,6 +361,8 @@ def main() -> int:
     print(f"  {len(verslag['tabellen'])} tabellen, {kolommen} kolommen herkend")
     if verslag["beeld"]:
         print(f"  {len(verslag['beeld'])} schermafdruk/PDF: alleen door AI te lezen ({', '.join(verslag['beeld'])})")
+    for naam, _ in verslag["toelichting"]:
+        print(f"  LET OP: {naam} staat letterlijk in het overzicht. Staan daar namen in, haal ze eruit.")
     for naam, reden in verslag["onbekend"]:
         print(f"  NIET HERKEND: {naam}: {reden}")
     return 0
