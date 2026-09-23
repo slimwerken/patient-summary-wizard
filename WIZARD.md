@@ -76,12 +76,32 @@ Het werk van de gebruiker komt in `mijn-koppeling/`. De uitvoer in `output/`.
 
 ## Stap 0. Klaarzetten (zonder vragen)
 
-1. Draai `python3 tools/valideer.py --controleer`. Dat controleert Python en Java, haalt
-   de validator op als hij ontbreekt en doet een proefkeuring (de eerste keer 1 tot 2
-   minuten, internet nodig). Gebruik NIET `java -version` als controle: op macOS bestaat
-   een nep-`java` die faalt terwijl de keuring gewoon werkt.
-2. Meldt hij dat Java ontbreekt: installeer het als dat kan (macOS: `brew install openjdk`)
-   en draai de controle opnieuw. Lukt het niet, zeg dat kort en ga door: de keuring kan later.
+1. Draai `python3 tools/valideer.py --controleer` (op Windows `python` of `py`). Dat
+   controleert Python en Java, haalt de validator op als hij ontbreekt en doet een
+   proefkeuring (de eerste keer 1 tot 2 minuten, internet nodig). Gebruik NIET
+   `java -version` als controle: op macOS bestaat een nep-`java` die faalt terwijl de
+   keuring gewoon werkt.
+2. **Ontbreekt er iets, installeer het dan zelf.** De gebruiker hoeft vooraf niets te
+   installeren behalve VS Code en de assistent. Zeg in een zin wat je gaat installeren en
+   waarom, en zeg erbij dat er een venster kan komen waarin hij op Installeer of Ja klikt.
+   - **Windows** (winget zit in Windows 10 en 11):
+     - Python: `winget install -e --id Python.Python.3.12 --accept-source-agreements --accept-package-agreements`
+     - Java: `winget install -e --id EclipseAdoptium.Temurin.21.JDK --accept-source-agreements --accept-package-agreements`
+     - Git (alleen nodig als de assistent erom vraagt): `winget install -e --id Git.Git`
+     - Na een installatie kent deze terminal het programma nog niet. Python vind je dan
+       onder `%LOCALAPPDATA%\Programs\Python\`; de keuring vindt Java vanzelf. Lukt het
+       niet, vraag de gebruiker VS Code te sluiten en opnieuw te openen, en ga verder.
+   - **Mac:**
+     - Staat Homebrew erop (`brew --version`)? Dan `brew install openjdk` (en eventueel `brew install python`).
+     - Zonder Homebrew, Python: draai `xcode-select --install` en zeg: "Klik in het
+       venster op Installeer en zeg klaar als hij klaar is."
+     - Zonder Homebrew, Java: kijk met `uname -m` of het `arm64` (dan `aarch64`) of
+       `x86_64` (dan `x64`) is, download de installer en open hem:
+       `curl -L -o ~/Downloads/java21.pkg "https://api.adoptium.net/v3/installer/latest/21/ga/mac/<arch>/jdk/hotspot/normal/eclipse?project=jdk"`
+       en `open ~/Downloads/java21.pkg`. Zeg: "Klik in het venster steeds op Ga door en
+       Installeer, en zeg klaar als hij klaar is."
+   - Draai daarna de controle opnieuw. Lukt Java echt niet, zeg dat kort en ga door: de
+     mapping en het script kunnen zonder, de keuring doe je later.
 3. Kijk in `mijn-data/`. Staat daar iets (behalve `.gitkeep`)? Dan is dat de testdata.
    **`mijn-data/barts-dummy-data/`** is de voorbeeldexport uit de live demo (een verzonnen
    huisartsenpraktijk, zeker testdata). Staat er verder niets, dan gebruik je die en zeg

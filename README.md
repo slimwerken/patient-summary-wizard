@@ -30,10 +30,11 @@ niet op de wifi hoeft te wachten. Of vraag je assistent: *Zet de keuring klaar.*
 
 ## Wat je nodig hebt
 
-- Python 3.9 of nieuwer
-- Java 17 of nieuwer, voor de keuring (de wizard installeert hem als het kan)
-- Een abonnement op je AI-assistent (bij Claude is Pro genoeg)
-- Een export van je testdata in `mijn-data/` (Excel, CSV, dump, schermafdruk: alles is goed, zie `EXPORT.md`), of de oefen-database die hier al in zit
+- VS Code met een AI-assistent die opdrachten mag uitvoeren: Claude Code (aanbevolen, Pro is genoeg), Codex, GitHub Copilot in Agent-stand of Gemini Code Assist
+- Python en Java installeert de wizard zelf als ze ontbreken
+- Een export van je testdata in `mijn-data/` (Excel, CSV, dump, schermafdruk: alles is goed, zie `EXPORT.md`). Nog niets? Dan gebruikt de wizard `mijn-data/barts-dummy-data/`
+
+Stap voor stap, ook als je nog nooit met VS Code hebt gewerkt: https://link.slimwerken.ai/nictiz
 
 ## Spelregels
 

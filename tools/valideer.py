@@ -41,6 +41,11 @@ def vind_java(verplicht: bool = True):
     if os.environ.get("JAVA_HOME"):
         kandidaten.append(Path(os.environ["JAVA_HOME"]) / "bin" / "java")
     kandidaten += [Path("/opt/homebrew/opt/openjdk/bin/java"), Path("/usr/local/opt/openjdk/bin/java")]
+    # Net geinstalleerd (Temurin-installer): staat nog niet in het PATH van deze terminal.
+    kandidaten += sorted(Path("/Library/Java/JavaVirtualMachines").glob("*/Contents/Home/bin/java"), reverse=True)
+    for basis in (os.environ.get("ProgramFiles", r"C:\Program Files"), r"C:\Program Files"):
+        for maker in ("Eclipse Adoptium", "Java", "Microsoft"):
+            kandidaten += sorted(Path(basis, maker).glob("*/bin/java.exe"), reverse=True)
     if shutil.which("java"):
         kandidaten.append(Path(shutil.which("java")))
     for java in kandidaten:
@@ -49,7 +54,7 @@ def vind_java(verplicht: bool = True):
             if probeer.returncode == 0:
                 return str(java)
     if verplicht:
-        sys.exit("Geen werkende Java gevonden. Installeer Java 17+ (macOS: brew install openjdk).")
+        sys.exit("Geen werkende Java gevonden. Installeer Java 21 (zie WIZARD.md, stap 0).")
     return None
 
 
@@ -78,7 +83,7 @@ def controleer() -> int:
         print(f"✓ Java gevonden: {java}")
     else:
         goed = False
-        print("✗ Geen werkende Java. Installeer Java 17+ (macOS: brew install openjdk) en draai dit opnieuw.")
+        print("✗ Geen werkende Java. Installeer Java 21 (zie WIZARD.md, stap 0) en draai dit opnieuw.")
     if JAR.exists():
         print(f"✓ Validator staat klaar: {JAR}")
     else:
