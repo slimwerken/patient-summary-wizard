@@ -174,10 +174,19 @@ Bij de veilige route gelden drie extra regels:
 1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden). Bij de veilige
    route: `python3 tools/valideer.py --alles --veilig`. Onderaan staat
    een samenvatting per soort melding; begin daar, niet bij de losse regels.
-2. Extra keuring van Interoplab (optioneel, alleen bij testdata). In `.mcp.json` staat hun
-   validator als MCP-server. Staat er een tool die begint met `mcp__interoplab` in je
-   toollijst, laat dan ook de dossiers door hun validator keuren. Staat die er niet, sla
-   dit over zonder te zoeken: de middag hangt er niet van af.
+2. **Dubbelcheck met Interoplab (altijd hardop, geen vraag).** In `.mcp.json` staat hun
+   validator als MCP-server. Noem deze stap ALTIJD, ook als hij niet kan:
+   - Staat er een tool die begint met `mcp__interoplab` in je toollijst en is het testdata,
+     zeg dan: "Nu laat ik het dubbelchecken door de keuring van Interoplab, dezelfde
+     software als het officiele testcentrum." Keur de dossiers (zie hieronder) en zet
+     daarna beide uitslagen naast elkaar in een kleine tabel: per dossier de fouten
+     lokaal en de fouten bij Interoplab.
+   - Staat die tool er niet, zeg dan: "De dubbelcheck van Interoplab staat nog niet aan.
+     Typ /mcp, kies interoplab en log in, dan doe ik hem erbij." Ga daarna gewoon door
+     met stap 3 hieronder; wacht er niet op en zoek niet verder. Zegt de gebruiker later
+     dat hij is ingelogd, doe dan alsnog de dubbelcheck.
+   - Is het geen testdata (veilige route), zeg dan: "De dubbelcheck van Interoplab sla ik
+     over: die stuurt de dossiers naar hun server, en dat doen we alleen met testdata."
    - Kies de profielset `eps` (European Patient Summary) en keur ALLE dossiers, een voor een.
    - De eerste keuring kan uit de tijd lopen, omdat de server de spec nog laadt. Probeer
      dan een keer opnieuw.
