@@ -6,8 +6,10 @@ verzonnen patienten. Alles is testdata: geen echte personen.
 
 ## Zo gebruik je het
 
-1. Kopieer alle bestanden uit deze map naar `mijn-data/`.
-2. Open Claude Code en typ `/start`.
+Niets doen: deze map staat al in `mijn-data/`. Typ `/start` (of in een andere assistent:
+Volg WIZARD.md) en de wizard gebruikt deze data.
+
+Zet je je eigen export in `mijn-data/`, dan slaat de wizard deze map vanzelf over.
 
 ## Wat erin staat
 

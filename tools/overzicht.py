@@ -28,6 +28,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
+DUMMY = "barts-dummy-data"
 MAX_RIJEN = 5000          # meer rijen lezen we niet per tabel
 VOORBEELDEN = 3
 ALLE_CODES = 40           # code-kolommen met hooguit zoveel waarden tonen we helemaal
@@ -368,7 +369,13 @@ def schrijf(verslag: dict) -> str:
 def main() -> int:
     map_ = Path(sys.argv[1]) if len(sys.argv) > 1 else PROJECT / "mijn-data"
     verslag = defaultdict(list)
-    bestanden = sorted(p for p in map_.rglob("*") if p.is_file())
+    bestanden = sorted(p for p in map_.rglob("*") if p.is_file() and p.name not in (".gitkeep", ".DS_Store"))
+    # De voorbeeldexport uit de live demo telt alleen mee als er verder niets staat.
+    dummy = [p for p in bestanden if DUMMY in p.relative_to(map_).parts]
+    eigen = [p for p in bestanden if DUMMY not in p.relative_to(map_).parts]
+    if eigen and dummy:
+        bestanden = eigen
+        print(f"  Je eigen export gevonden: de map {DUMMY}/ (voorbeelddata) sla ik over.")
     for pad in bestanden:
         bekijk(pad, verslag, map_)
     tekst = schrijf(verslag)

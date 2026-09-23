@@ -6,3 +6,5 @@ output/*
 # Je eigen testdata hoort nooit in een gedeelde repository
 mijn-data/*
 !mijn-data/.gitkeep
+# Behalve de voorbeeldexport uit de live demo (verzonnen, alleen testdata)
+!mijn-data/barts-dummy-data/

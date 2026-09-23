@@ -1,7 +1,7 @@
 # Wizard: van je eigen testdata naar een Patient Summary
 
-Dit bestand is voor de AI-assistent (Claude Code, Codex of een andere codeer-assistent).
-Jij, de assistent, loodst de gebruiker hier stap voor stap doorheen.
+Dit bestand is voor de AI-assistent (Claude Code, Codex, GitHub Copilot, Gemini of een
+andere codeer-assistent). Jij, de assistent, loodst de gebruiker hier stap voor stap doorheen.
 
 ## Jouw rol
 
@@ -18,6 +18,24 @@ je zelf kunt uitzoeken of redelijk kunt kiezen, doe je zelf en leg je vast in de
 - Zeg in een zin wat je gaat doen, doe het, en zeg in een zin wat eruit kwam.
 - Voer commando's zelf uit. Vraag de gebruiker nooit om code te schrijven of te plakken.
 - Schrijf in gewoon Nederlands. Leg een vakterm kort uit als je hem voor het eerst gebruikt.
+
+### Welke assistent ben jij?
+
+De wizard werkt met elke assistent die bestanden kan lezen en schrijven en opdrachten op
+deze computer kan uitvoeren. Wat per assistent anders is:
+
+- **Geen keuzeknoppen?** (Codex, Copilot, Gemini) Zet de opties genummerd onder de vraag,
+  je aanbeveling als 1, en zeg: "Typ het nummer." Wacht dan op het antwoord.
+- **Kun je geen opdrachten uitvoeren?** Dan sta je in de verkeerde stand. Zeg het de
+  gebruiker in een zin en stop: in GitHub Copilot "Zet de chat op Agent (onderaan het
+  chatvenster)", in Codex "Zet Codex op Agent", in een gewoon chatvenster in de browser
+  "Dit werkt alleen met een assistent in VS Code, zie README.md".
+- **Vraagt je assistent toestemming per opdracht?** Zeg bij de eerste keer: "Ik vraag
+  steeds toestemming om iets uit te voeren; klik op Toestaan."
+- **Python heet anders?** Op Windows is het vaak `python` of `py` in plaats van `python3`.
+  Kijk welke werkt en gebruik die in alle opdrachten.
+- **`/start` en `/patient-summary`** bestaan alleen in Claude Code. In andere assistenten
+  typt de gebruiker "Volg WIZARD.md" en later "Volg mijn-koppeling/DRAAIEN.md".
 
 ## Harde regels
 
@@ -65,6 +83,10 @@ Het werk van de gebruiker komt in `mijn-koppeling/`. De uitvoer in `output/`.
 2. Meldt hij dat Java ontbreekt: installeer het als dat kan (macOS: `brew install openjdk`)
    en draai de controle opnieuw. Lukt het niet, zeg dat kort en ga door: de keuring kan later.
 3. Kijk in `mijn-data/`. Staat daar iets (behalve `.gitkeep`)? Dan is dat de testdata.
+   **`mijn-data/barts-dummy-data/`** is de voorbeeldexport uit de live demo (een verzonnen
+   huisartsenpraktijk, zeker testdata). Staat er verder niets, dan gebruik je die en zeg
+   je dat erbij. Staat er ook een eigen export, dan sla je die map helemaal over: in het
+   overzicht, de mapping, de converter en de tests.
 4. Vertel de gebruiker in drie zinnen wat er gaat gebeuren: ik lees je testdata, ik maak
    de mapping naar de Patient Summary en jij controleert die, daarna bouw ik het script en
    laat ik het keuren.
@@ -172,7 +194,7 @@ Let op bij de mapping:
 ## Stap 4. Het script bouwen (geen vraag)
 
 Schrijf `mijn-koppeling/converter.py` volgens de mapping. Zonder argumenten leest hij
-ALLES uit `mijn-data/` en schrijft hij een dossier per patient in `output/`, zodat
+ALLES uit `mijn-data/` (behalve `barts-dummy-data/` als daarnaast een eigen export staat) en schrijft hij een dossier per patient in `output/`, zodat
 `python3 mijn-koppeling/converter.py` altijd de hele omzetting doet (ook na een nieuwe
 export). Codevertalingen in een aparte tabel (`mijn-koppeling/vertaling.py`). Vaste id's, zodat dezelfde invoer altijd dezelfde
 uitvoer geeft. Het documenttijdstip is standaard "nu"; geef een optie `--datum` zodat een
@@ -204,15 +226,19 @@ Bij de veilige route gelden drie extra regels:
 1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden). Bij de veilige
    route: `python3 tools/valideer.py --alles --veilig`. Onderaan staat
    een samenvatting per soort melding; begin daar, niet bij de losse regels.
-2. **Dubbelcheck met Interoplab (altijd hardop, geen vraag).** In `.mcp.json` staat hun
-   validator als MCP-server. Noem deze stap ALTIJD, ook als hij niet kan:
-   - Staat er een tool die begint met `mcp__interoplab` in je toollijst en is het testdata,
+2. **Dubbelcheck met Interoplab (altijd hardop, geen vraag).** Hun validator staat als
+   MCP-server in `.mcp.json` (Claude Code) en `.vscode/mcp.json` (GitHub Copilot). Noem
+   deze stap ALTIJD, ook als hij niet kan:
+   - Heb je een tool van de interoplab-server (in Claude Code beginnen ze met
+     `mcp__interoplab`, elders heten ze bijvoorbeeld `fhir_validate_resource`) en is het testdata,
      zeg dan: "Nu laat ik het dubbelchecken door de keuring van Interoplab, dezelfde
      software als het officiele testcentrum." Keur de dossiers (zie hieronder) en zet
      daarna beide uitslagen naast elkaar in een kleine tabel: per dossier de fouten
      lokaal en de fouten bij Interoplab.
    - Staat die tool er niet, zeg dan: "De dubbelcheck van Interoplab staat nog niet aan.
-     Typ /mcp, kies interoplab en log in, dan doe ik hem erbij." Ga daarna gewoon door
+     Typ /mcp, kies interoplab en log in, dan doe ik hem erbij." In GitHub Copilot is het:
+     "Open .vscode/mcp.json en klik boven interoplab op Start." Heeft je assistent geen
+     MCP, zeg dan dat de dubbelcheck met Claude Code of Copilot kan, en ga door. Ga daarna gewoon door
      met stap 3 hieronder; wacht er niet op en zoek niet verder. Zegt de gebruiker later
      dat hij is ingelogd, doe dan alsnog de dubbelcheck.
    - Is het geen testdata (veilige route), zeg dan: "De dubbelcheck van Interoplab sla ik

@@ -51,7 +51,7 @@ niet op de wifi hoeft te wachten. Of vraag je assistent: *Zet de keuring klaar.*
 | `WIZARD.md` | De stappen die de assistent met je doorloopt |
 | `EXPORT.md` | Hoe je per systeem een export van je testdata maakt |
 | `STAPPEN.md` | Dezelfde route, maar dan zelf de opdrachten intypen |
-| `barts-dummy-data/` | De CSV-export uit de live demo: kopieer hem naar `mijn-data/` en typ `/start` |
+| `mijn-data/barts-dummy-data/` | De CSV-export uit de live demo. Zonder eigen export gebruikt de wizard deze |
 | `data/epd.sqlite` | Oefen-database van een verzonnen huisartsenpraktijk (vijf verzonnen patienten) |
 | `specs/` | De specificatie van de HL7 Europe Patient Summary (versie van 11 september 2026) |
 | `tools/valideer.py` | De keuring met de officiele HL7-validator |
