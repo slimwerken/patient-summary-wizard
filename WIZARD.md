@@ -147,8 +147,10 @@ Let op bij de mapping:
 
 ## Stap 4. Het script bouwen (geen vraag)
 
-Schrijf `mijn-koppeling/converter.py` volgens de mapping. Codevertalingen in een aparte
-tabel (`mijn-koppeling/vertaling.py`). Vaste id's, zodat dezelfde invoer altijd dezelfde
+Schrijf `mijn-koppeling/converter.py` volgens de mapping. Zonder argumenten leest hij
+ALLES uit `mijn-data/` en schrijft hij een dossier per patient in `output/`, zodat
+`python3 mijn-koppeling/converter.py` altijd de hele omzetting doet (ook na een nieuwe
+export). Codevertalingen in een aparte tabel (`mijn-koppeling/vertaling.py`). Vaste id's, zodat dezelfde invoer altijd dezelfde
 uitvoer geeft. Het documenttijdstip is standaard "nu"; geef een optie `--datum` zodat een
 run exact te herhalen is (ook voor de tests). Uitvoer: `output/patient-<nummer>.json`.
 
@@ -186,7 +188,8 @@ Leg de werkwijze vast zodat de gebruiker hem later met een opdracht opnieuw draa
 ## Stap 7. Afronden (klik 4)
 
 Geef een korte samenvatting: wat er nu staat, hoeveel dossiers goedgekeurd, welke open
-vragen er nog liggen voor iemand van Nictiz, en de ene opdracht waarmee de gebruiker het
-morgen opnieuw draait. Sluit af met EEN vraag: "Wil je een van de dossiers bekijken?"
+vragen er nog liggen voor iemand van Nictiz, en hoe de gebruiker het opnieuw draait:
+nieuwe export in `mijn-data/`, dan `python3 mijn-koppeling/converter.py` in de terminal
+(de omzetting zelf, zonder AI) of `/patient-summary` in Claude Code (omzetten plus keuren). Sluit af met EEN vraag: "Wil je een van de dossiers bekijken?"
 Knoppen: "Ja, laat er een zien" (aanbevolen) en "Nee, klaar". Bij de veilige route laat je
 het dossier niet zelf zien: zeg welk bestand de gebruiker kan openen in `output/`.
