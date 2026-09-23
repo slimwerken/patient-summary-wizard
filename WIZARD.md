@@ -83,9 +83,10 @@ Draai in BEIDE gevallen eerst `python3 tools/overzicht.py`. Dat maakt
 - **Niet herkend** (bijvoorbeeld een Access-bestand): stel EEN vraag met de knoppen
   "Ik exporteer het opnieuw als CSV of Excel" (aanbevolen, wijs op `EXPORT.md`),
   "Sla dit bestand over" en, ALLEEN bij testdata, "Kijk zelf in het bestand".
-- **Schermafdruk of PDF:** die kan het script niet lezen. Bij testdata bekijk je hem zelf.
-  Bij de veilige route vraag je eerst: "Deze schermafdruk kan alleen ik lezen. Mag dat?"
-  Bij nee sla je hem over.
+- **Schermafdruk of PDF:** die kan het script niet lezen; het overzicht noemt dan alleen de
+  bestandsnaam. Bij testdata bekijk je hem zelf. Bij de veilige route vraag je eerst:
+  "Deze schermafdruk kan alleen ik lezen. Mag dat?" (een extra klik, alleen in dit geval).
+  Bij nee sla je hem over. Zie stap 4 voor wat je bouwt als er alleen schermafdrukken zijn.
 
 Is `mijn-data/` leeg, stel dan EEN vraag: "Waar staat je testdata?" Knoppen:
 - **Ik zet nu een export in mijn-data/** (aanbevolen; zeg dat elke vorm goed is: Excel,
@@ -116,6 +117,17 @@ velden er zijn en welke over de patient, problemen, allergieen, medicatie, verri
 en hulpmiddelen gaan. Noem opvallende dingen (datumnotatie, eigen codes, lege velden).
 Stel hier GEEN vraag; onduidelijkheden neem je mee naar de mapping.
 
+**Een platte export** (een tabel met meerdere regels per patient, bijvoorbeeld een regel per
+probleem of medicijn, en de patientgegevens op elke regel herhaald; het overzicht meldt
+dat): voeg de regels samen per patientnummer tot een dossier. Neem de patientgegevens van
+de eerste regel en meld het als een latere regel afwijkt. Een kolom als `soort` bepaalt
+wat een regel is; een regel zonder soort is een patient zonder gegevens; een onbekende
+soort laat de converter stoppen met bestand, rij en kolom. Maak vaste id's uit de inhoud,
+zodat de volgorde van de regels niet uitmaakt.
+
+**Samengevoegde velden** (naam of adres als een geheel, zoals op een scherm): knip ze op
+met vaste regels en zet die onder Besluiten. Lukt dat niet zeker, dan wordt het een open vraag.
+
 ## Stap 3. De mapping maken (klik 2 en 3)
 
 1. Pak de specificatie uit (`tar -xzf specs/hl7.fhir.eu.eps.tgz -C specs/`) en lees de
@@ -127,7 +139,9 @@ Stel hier GEEN vraag; onduidelijkheden neem je mee naar de mapping.
 3. **Klik 2.** Laat de mapping zien als tabel en vraag: "Klopt dit met hoe jullie systeem
    werkt?" Knoppen: "Ja" (aanbevolen), "Ik wil iets aanpassen", "Weet ik niet, laat het staan".
 4. **Klik 3.** Leg ALLE open vragen in EEN keer voor, in een scherm, met per vraag je
-   aanbeveling en de optie "Laat staan voor Nictiz". Niet een voor een.
+   aanbeveling en de optie "Laat staan voor Nictiz". Niet een voor een. Past er maar vier
+   in een scherm (zoals in Claude Code) en zijn het er meer, leg dan de vier belangrijkste
+   voor en zet de rest als "Laat staan voor Nictiz" in de mapping. Zeg dat erbij.
 
 Let op bij de mapping:
 - De vijf verplichte secties zijn Problemen, Allergieen, Medicatie, Verrichtingen en
@@ -148,6 +162,9 @@ Let op bij de mapping:
   vertaaltabel daar NIET mee aan als ze later toevallig ergens voorbijkomen. De converter
   schrijft ze in `output/open-punten.md` voor de gebruiker, en in de mapping staat een
   open vraag.
+- Elke SNOMED-, LOINC- of ATC-code die je gebruikt, zoek je zelf op bij tx.fhir.org
+  (`CodeSystem/$lookup`), ook als hij in `voorbeeld/vertaling.py` staat. Zet in de mapping
+  dat hij daar is nagekeken. Dan is hij onderbouwd (regel 4).
 - De Patient Summary werkt het liefst met SNOMED CT. Heeft het systeem andere codes
   (ICPC, ICD-10, ATC), neem die over en zet een vertaling naar SNOMED alleen erbij als
   die onderbouwd is. De rest wordt een open vraag.
@@ -162,6 +179,19 @@ uitvoer geeft. Het documenttijdstip is standaard "nu"; geef een optie `--datum` 
 run exact te herhalen is (ook voor de tests). Uitvoer: `output/patient-<nummer>.json`.
 
 Schrijf tests in `mijn-koppeling/tests/` en draai ze. Vertel hoeveel er groen zijn.
+
+**Alleen schermafdrukken, nog geen export?** Dan kan het script nog niets inlezen. Doe dit:
+- Typ de gegevens van de schermafdrukken over naar CSV-bestanden in
+  `mijn-koppeling/overgetypt/`, een bestand per blok op het scherm, met een `LEESMIJ.md`
+  erbij: "Door AI overgetypt van de schermafdrukken. Eenmalige testset, geen onderdeel van
+  het resultaat. Vergelijk het met de schermafdruk."
+- De converter krijgt een optie `--invoer <map>`. Zonder argumenten leest hij `mijn-data/`;
+  staan daar geen bestanden die hij kan lezen, dan stopt hij met: "Nog geen export in
+  mijn-data/. Proef draaien: python3 mijn-koppeling/converter.py --invoer mijn-koppeling/overgetypt".
+- Zeg tegen de gebruiker, in gewone taal: het script zelf bevat geen AI, maar deze testset
+  is door mij overgetypt, dus controleer hem. Het invoerformaat is een aanname op basis van
+  het scherm; komt er straks een echte export, dan past de assistent het leesdeel van het
+  script aan en blijft de rest (mapping, vertaling, opbouw van het dossier) staan.
 
 Bij de veilige route gelden drie extra regels:
 - De converter zet geen gegevens in de terminal: alleen hoeveel dossiers en open punten,
@@ -215,7 +245,7 @@ Bij de veilige route gelden drie extra regels:
 
 Leg de werkwijze vast zodat de gebruiker hem later met een opdracht opnieuw draait:
 - Claude Code: `.claude/skills/patient-summary/SKILL.md` (draaien, keuren, bekijken met
-  `python3 tools/bekijk.py --open`, fout oplossen,
+  `python3 tools/bekijk.py --open`, fout oplossen, wat te doen als er nog geen export is,
   wat te doen bij een nieuwe versie van de spec). Zet erin dat `specs/package/` eerst
   uitgepakt moet worden als die map ontbreekt (hij staat in `.gitignore`).
 - Andere assistenten: `mijn-koppeling/DRAAIEN.md` met dezelfde stappen.
@@ -226,6 +256,8 @@ Geef een korte samenvatting: wat er nu staat, hoeveel dossiers goedgekeurd, welk
 vragen er nog liggen voor iemand van Nictiz, en hoe de gebruiker het opnieuw draait:
 nieuwe export in `mijn-data/`, dan `python3 mijn-koppeling/converter.py` in de terminal
 (de omzetting zelf, zonder AI) of `/patient-summary` in Claude Code (omzetten plus keuren).
+Waren er alleen schermafdrukken, zeg dan dat de volgende stap een echte export is (wijs op
+`EXPORT.md`) en dat de proef tot die tijd met `--invoer mijn-koppeling/overgetypt` draait.
 
 Sluit af met EEN vraag: "Wil je de dossiers zien zoals een arts ze ontvangt?"
 Knoppen: "Ja, open ze in de browser" (aanbevolen) en "Nee, klaar".

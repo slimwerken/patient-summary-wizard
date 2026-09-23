@@ -33,9 +33,14 @@ VOORBEELDEN = 3
 ALLE_CODES = 40           # code-kolommen met hooguit zoveel waarden tonen we helemaal
 
 PRIVE = re.compile(r"(naam|name|voorn|achtern|tussenv|initial|voorlett|straat|street|adres|address|"
-                   r"huisnr|huisnummer|postcode|postal|zip|woonpl|city|plaats|telefoon|phone|tel|mobiel|"
+                   r"huisnr|huisnummer|postcode|postal|zip|woonpl|city|plaats|(?:^|[^a-z])tel|phone|mobiel|"
                    r"mail|bsn|burgerservice|ssn|geboorte|birth|dob|iban|rekening|"
+                   r"(?:^|[^a-z])(?:huis)?arts|behandelaar|zorgverlener|practitioner|doctor|"
                    r"opmerk|notitie|memo|comment|note|anamnese|verslag|brief|vrije.?tekst)", re.I)
+# Kolommen over een ding, niet over een persoon, ook al zit er "naam" of "name" in.
+GEEN_PERSOON = re.compile(r"(device|product|middel|medic|stof|artikel|genees|hulpmiddel|display|"
+                          r"omschrijving|description|diagnose|verrichting|procedure)", re.I)
+PATIENT_ID = re.compile(r"^(pat|patient|patiënt|client|cliënt)(_?id|_?nr|_?nummer)?$|^patnr$", re.I)
 BEELD = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".heic", ".bmp", ".tif", ".tiff", ".pdf"}
 DATUM = [(re.compile(r"^\d{4}-\d{2}-\d{2}([T ][\d:.]+)?"), "JJJJ-MM-DD"),
          (re.compile(r"^\d{2}-\d{2}-\d{4}$"), "DD-MM-JJJJ"),
@@ -68,12 +73,17 @@ def soort(waarden) -> str:
 def kolom_overzicht(naam: str, waarden: list) -> dict:
     gevuld = [w for w in waarden if w not in (None, "") and str(w).strip()]
     uniek = list(dict.fromkeys(str(w).strip() for w in gevuld))
-    prive = bool(PRIVE.search(naam))
+    prive = bool(PRIVE.search(naam)) and not GEEN_PERSOON.search(naam)
     wat = soort(waarden)
     # Codes (ICPC, ATC, eigen codes) zijn geen persoonsgegevens: toon ze allemaal, anders
     # mist de mapping vertalingen voor codes die toevallig niet bij de voorbeelden zaten.
-    aantal = len(uniek) if wat == "code" and not prive and len(uniek) <= ALLE_CODES else VOORBEELDEN
+    # Vrije tekst met weinig verschillende waarden (zoals diagnoses) ook helemaal: die heb je
+    # nodig voor de vertaling naar SNOMED. Echte vrije tekst (opmerkingen) staat onder PRIVE.
+    aantal = len(uniek) if wat in ("code", "tekst") and not prive and len(uniek) <= ALLE_CODES else VOORBEELDEN
     voorbeelden = [vorm(w) if prive else str(w)[:60] for w in uniek[:aantal]]
+    if wat == "code" and not prive and 1 < len(uniek) <= 10 and len(gevuld) > len(uniek):
+        tel = Counter(str(w).strip() for w in gevuld)
+        voorbeelden = [f"{w} ({tel[w]}x)" for w in uniek]
     return {"kolom": naam, "soort": wat, "gevuld": f"{len(gevuld)}/{len(waarden)}",
             "verschillend": len(uniek), "voorbeelden": voorbeelden, "verborgen": prive}
 
@@ -82,7 +92,15 @@ def tabel(naam: str, kolommen: list, rijen: list) -> dict:
     rijen = rijen[:MAX_RIJEN]
     per_kolom = [kolom_overzicht(str(k), [r[i] if i < len(r) else None for r in rijen])
                  for i, k in enumerate(kolommen)]
-    return {"tabel": naam, "rijen": len(rijen), "kolommen": per_kolom, "bron": ""}
+    t = {"tabel": naam, "rijen": len(rijen), "kolommen": per_kolom, "bron": "", "plat": ""}
+    for i, k in enumerate(kolommen):
+        if PATIENT_ID.match(str(k).strip()):
+            ids = [r[i] for r in rijen if i < len(r) and r[i] not in (None, "")]
+            if len(set(ids)) < len(ids):
+                t["plat"] = (f"Let op: {len(ids)} rijen maar {len(set(ids))} verschillende `{k}`. Meerdere "
+                             f"regels per patient: voeg ze samen per `{k}` tot een dossier.")
+            break
+    return t
 
 
 # ---------------------------------------------------------------- lezers
@@ -323,10 +341,11 @@ def schrijf(verslag: dict) -> str:
          "Lokaal gemaakt door `tools/overzicht.py`. Namen, adressen, telefoon, e-mail, BSN en",
          "geboortedatums zijn vervangen door hun vorm (X = letter, 9 = cijfer). De AI-assistent",
          "leest alleen dit overzicht, niet de bestanden zelf. Code-kolommen staan er helemaal in;",
-         "vrije tekst (zoals omschrijvingen) staat er letterlijk in, met hooguit drie voorbeelden.", ""]
+         "omschrijvingen met weinig verschillende waarden ook. Opmerkingen en notities zijn verborgen.", ""]
     for t in verslag["tabellen"]:
         r += [f"## {t['tabel']}  ({t['rijen']} rijen)", "",
               *([t["bron"], ""] if t.get("bron") else []),
+              *([t["plat"], ""] if t.get("plat") else []),
               "| kolom | soort | gevuld | verschillend | voorbeelden |", "|---|---|---|---|---|"]
         for k in t["kolommen"]:
             vb = ", ".join(f"`{v}`" for v in k["voorbeelden"]) + ("  (vorm, verborgen)" if k["verborgen"] and k["voorbeelden"] else "")
