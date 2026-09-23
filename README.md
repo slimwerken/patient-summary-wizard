@@ -38,7 +38,9 @@ niet op de wifi hoeft te wachten. Of vraag je assistent: *Zet de keuring klaar.*
 ## Spelregels
 
 - **Alleen testdata.** Nooit echte patientgegevens.
-- Alles blijft op je eigen laptop.
+- Alles blijft op je eigen laptop. Geen testdata of twijfel? Dan leest de assistent je
+  bestanden niet: een script op je eigen computer maakt een overzicht zonder namen,
+  adressen en nummers, en alleen dat ziet de AI.
 - Eerst de mapping (welk veld gaat waarheen), dan pas code.
 - De assistent raadt nooit een medische code. Wat hij niet weet, meldt hij.
 

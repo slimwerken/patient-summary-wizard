@@ -21,7 +21,12 @@ je zelf kunt uitzoeken of redelijk kunt kiezen, doe je zelf en leg je vast in de
 
 ## Harde regels
 
-1. **Alleen testdata.** Nooit echte patientgegevens. Vraag dit expliciet na in stap 1.
+1. **Testdata of de veilige route.** Vraag in stap 1 of het testdata is. Is het zeker
+   testdata, dan mag je de bestanden zelf lezen. Is het geen testdata of weet de gebruiker
+   het niet, dan volg je de VEILIGE ROUTE: je opent de bestanden in `mijn-data/` NOOIT
+   zelf, ook niet een paar regels. Je leest alleen het overzicht dat `tools/overzicht.py`
+   lokaal maakt (namen, adressen, nummers en geboortedatums staan daar alleen als vorm in),
+   en je bekijkt ook de gemaakte dossiers in `output/` niet.
 2. **Alles blijft op deze computer.** Stuur geen data naar een externe dienst, behalve een
    validatie-tool die de gebruiker zelf heeft ingesteld. Losse CODES opzoeken bij de
    terminologieserver (tx.fhir.org, die gebruikt de keuring ook) mag wel: daar gaat
@@ -64,8 +69,20 @@ Het werk van de gebruiker komt in `mijn-koppeling/`. De uitvoer in `output/`.
 ## Stap 1. De testdata (klik 1)
 
 Staat er iets in `mijn-data/`, stel dan EEN vraag: "In mijn-data/ staat <bestanden>. Is
-dit testdata, zonder echte patientgegevens?" Knoppen: "Ja, alleen testdata" (aanbevolen)
-en "Nee of weet ik niet". Alleen bij ja ga je door.
+dit testdata, zonder echte patientgegevens?" Knoppen:
+- **Ja, alleen testdata** (aanbevolen). Je mag de bestanden zelf lezen.
+- **Nee of weet ik niet.** Zeg in een zin: "Dan kijk ik niet in je bestanden. Een script
+  op je eigen computer maakt een overzicht zonder namen, adressen en nummers, en alleen
+  dat lees ik." Daarna volg je de veilige route (harde regel 1).
+
+Draai in BEIDE gevallen eerst `python3 tools/overzicht.py`. Dat maakt
+`mijn-koppeling/overzicht.md` en zegt welke bestanden het niet herkent.
+- **Niet herkend** (bijvoorbeeld een Access-bestand): stel EEN vraag met de knoppen
+  "Ik exporteer het opnieuw als CSV of Excel" (aanbevolen, wijs op `EXPORT.md`),
+  "Sla dit bestand over" en, ALLEEN bij testdata, "Kijk zelf in het bestand".
+- **Schermafdruk of PDF:** die kan het script niet lezen. Bij testdata bekijk je hem zelf.
+  Bij de veilige route vraag je eerst: "Deze schermafdruk kan alleen ik lezen. Mag dat?"
+  Bij nee sla je hem over.
 
 Is `mijn-data/` leeg, stel dan EEN vraag: "Waar staat je testdata?" Knoppen:
 - **Ik zet nu een export in mijn-data/** (aanbevolen; zeg dat elke vorm goed is: Excel,
@@ -90,7 +107,8 @@ Lezen van de data, wat de vorm ook is:
 
 ## Stap 2. Verkennen (geen vraag)
 
-Lees de data zelf in. Laat daarna in gewone taal zien wat je vond: welke tabellen of
+Lees `mijn-koppeling/overzicht.md` (bij de veilige route ALLEEN dat; bij testdata mag je
+de bestanden erbij pakken). Laat daarna in gewone taal zien wat je vond: welke tabellen of
 velden er zijn en welke over de patient, problemen, allergieen, medicatie, verrichtingen
 en hulpmiddelen gaan. Noem opvallende dingen (datumnotatie, eigen codes, lege velden).
 Stel hier GEEN vraag; onduidelijkheden neem je mee naar de mapping.
@@ -170,4 +188,5 @@ Leg de werkwijze vast zodat de gebruiker hem later met een opdracht opnieuw draa
 Geef een korte samenvatting: wat er nu staat, hoeveel dossiers goedgekeurd, welke open
 vragen er nog liggen voor iemand van Nictiz, en de ene opdracht waarmee de gebruiker het
 morgen opnieuw draait. Sluit af met EEN vraag: "Wil je een van de dossiers bekijken?"
-Knoppen: "Ja, laat er een zien" (aanbevolen) en "Nee, klaar".
+Knoppen: "Ja, laat er een zien" (aanbevolen) en "Nee, klaar". Bij de veilige route laat je
+het dossier niet zelf zien: zeg welk bestand de gebruiker kan openen in `output/`.
