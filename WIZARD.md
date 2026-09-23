@@ -30,7 +30,8 @@ je zelf kunt uitzoeken of redelijk kunt kiezen, doe je zelf en leg je vast in de
    data voorbij: de converter meldt alleen aantallen en bestandsnamen, en de keuring draai
    je met `--veilig`, zodat hij geen codes of waarden per dossier laat zien.
 2. **Alles blijft op deze computer.** Stuur geen data naar een externe dienst, behalve een
-   validatie-tool die de gebruiker zelf heeft ingesteld. Losse CODES opzoeken bij de
+   validatie-tool die de gebruiker zelf heeft ingesteld, en dat alleen bij testdata (nooit
+   op de veilige route). Losse CODES opzoeken bij de
    terminologieserver (tx.fhir.org, die gebruikt de keuring ook) mag wel: daar gaat
    nooit patientinformatie heen, alleen de code.
 3. **Eerst de mapping, dan de code.** De mapping is de tabel "welk veld gaat waarheen".
@@ -173,10 +174,21 @@ Bij de veilige route gelden drie extra regels:
 1. Draai `python3 tools/valideer.py --alles` (duurt ongeveer 30 seconden). Bij de veilige
    route: `python3 tools/valideer.py --alles --veilig`. Onderaan staat
    een samenvatting per soort melding; begin daar, niet bij de losse regels.
-2. Extra keuring van Interoplab (optioneel). In `.mcp.json` staat hun validator als
-   MCP-server. Staat er een tool die begint met `mcp__interoplab` in je toollijst, laat
-   dan ook een bundel door hun validator keuren. Staat die er niet, sla dit over zonder
-   te zoeken: de middag hangt er niet van af.
+2. Extra keuring van Interoplab (optioneel, alleen bij testdata). In `.mcp.json` staat hun
+   validator als MCP-server. Staat er een tool die begint met `mcp__interoplab` in je
+   toollijst, laat dan ook de dossiers door hun validator keuren. Staat die er niet, sla
+   dit over zonder te zoeken: de middag hangt er niet van af.
+   - Kies de profielset `eps` (European Patient Summary) en keur ALLE dossiers, een voor een.
+   - De eerste keuring kan uit de tijd lopen, omdat de server de spec nog laadt. Probeer
+     dan een keer opnieuw.
+   - Kijk niet alleen naar het aantal fouten. Staat er bij `Bundle.entry` de melding
+     "does not match any known slice", dan telt dat onderdeel NIET mee als onderdeel van de
+     Patient Summary, ook als er 0 fouten staan. Keur zo'n onderdeel dan los, met het
+     EPS-profiel erop (`meta.profile`), om de echte reden te zien.
+   - Zijn de twee keuringen het oneens, kies dan niet zelf en haal geen code weg. Bekend
+     voorbeeld: Interoplab controleert codes bij de Nederlandse terminologieserver en keurt
+     een ICPC-code naast de SNOMED-code af, de lokale keuring slaat ICPC over en keurt goed.
+     Zet het als open vraag in de mapping onder "Keuring", met beide uitslagen erbij.
 3. Per fout: zoek de regel in de spec, pas EERST de mapping aan, dan de code, en voeg een
    test toe die de fout had moeten vangen.
 4. Herhaal, maximaal vijf rondes. Vertel na elke ronde kort: van hoeveel fouten naar hoeveel.

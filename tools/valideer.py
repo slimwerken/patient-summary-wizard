@@ -129,6 +129,13 @@ def lees_uitslag(tekst: str) -> dict:
                 niveau = "Error"
             if niveau != "Information":
                 uitslag[huidig].append((niveau, pad, bericht))
+            elif (re.fullmatch(r"Bundle\.entry\[\d+\]", pad) and "does not match any known slice" in bericht
+                  and "bundle-eu-eps" in bericht):
+                # Ook bij 0 fouten: dit onderdeel telt niet mee als EPS-onderdeel. De keuring
+                # van Interoplab meldt het alleen zo (gezien op 23 september 2026).
+                uitslag[huidig].append(("Warning", pad, "Dit onderdeel telt niet mee als onderdeel van de "
+                                        "Patient Summary: het past op geen enkel EPS-profiel. Keur het los "
+                                        "met het profiel erop om de reden te zien."))
             elif "recommended to come from this value set" in bericht:
                 uitslag[huidig].append(("Advies", pad, bericht))
     return uitslag
